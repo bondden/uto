@@ -1,0 +1,47 @@
+{
+  "name": "@bond007/u2j",
+  "version": "0.1.3",
+  "description": "PlantUML class diagram to OrientDB import.json converter.",
+  "keywords": [
+    "plantuml",
+    "orientdb",
+    "uml",
+    "graphdb",
+    "nosql"
+  ],
+  "homepage": "https://github.com/bondden/u2j",
+  "bugs": {
+    "url": "https://github.com/bondden/u2j/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "test/main.js"
+  },
+  "author": {
+    "name": "Denis Bondarenko",
+    "email": "bond.den@gmail.com",
+    "url": "https://github.com/bondden"
+  },
+  "repository": "bondden/u2j",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "dependencies": {
+    "fs-extra": "^0.18.2",
+    "node-json-minify": "^0.1.3-a"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "fs-extra": "^0.18.2",
+    "is-my-json-valid": "^2.10.1",
+    "istanbul": "^0.3.13",
+    "jscs": "^1.13.1",
+    "mocha": "*",
+    "mocha-lcov-reporter": "0.0.2"
+  },
+  "files": [
+    "./d/",
+    "./compiler.js"
+  ]
+}
