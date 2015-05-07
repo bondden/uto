@@ -7,8 +7,8 @@
 
 var
 	expect      = require('chai').expect,
-	should      = require('chai').should(),
-	mocha       = require('mocha'),
+	//should      = require('chai').should(),
+	//mocha       = require('mocha'),
 	fs          = require('fs-extra'),
 	validator   = require('is-my-json-valid'),
 
@@ -25,6 +25,7 @@ var
 ;
 global.CNF=false;
 global.SRV=false;
+global.DB =false;
 
 describe('u2j Suit',function(){
 
@@ -114,22 +115,36 @@ describe('u2j Suit',function(){
 
 		describe('Req. 0.2.2. Connecting to local OrientDB server',function(){
 
-			global.SRV=odb(JSON.parse(fs.readFileSync(cnfFile,'utf8')).server);
-
-			it('Server should be initialized',function(){
+			it('Server should be initialized',function(done){
+				global.SRV=odb(JSON.parse(fs.readFileSync(cnfFile,'utf8')).server);
 				expect(SRV).to.be.an('object');
+				done();
 			});
 
-			it('Test database should be created',function(){
+			it('Test database should be created',function(done){
 
 				var dbname='tmpTstDb';
-				SRV.create({
-					name: dbname,
-					type: 'graph',
-					storage: 'memory'
+				SRV.drop(dbname).then(function(){
 
-				}).then(function(db){
-					expect(db.name).to.equal(dbname);
+					SRV.create({
+						name: dbname,
+						type: 'graph',
+						storage: 'memory'
+					}).then(function(db){
+
+						expect(db.name).to.equal(dbname);
+						global.DB=SRV.use(dbname);
+						done();
+
+					}).error(function(e){
+
+						console.log(e);
+						done(e);
+					});
+
+				}).error(function(e){
+					console.log(e);
+					done(e);
 				});
 
 			});
@@ -138,8 +153,57 @@ describe('u2j Suit',function(){
 
 		describe('Req. 0.2.3. Generating classes',function(){
 
-			it('There should be 12 classes in test db',function(){
-				expect(0).to.be.equal(10);
+			this.timeout(5000);
+
+			var steps={
+				'nClassesBeforeImport':0,
+				'nClassesToImport':1,
+				'nClassesAfterImport':0
+			};
+
+			before(function(done){
+
+				DB.class.list().then(function(r){
+					//expect(true).to.be.equal(8);
+					steps.nClassesBeforeImport=r.length;
+					done();
+				}).error(function(e){
+					done(e);
+				});
+
+			});
+
+			it('It should create '+steps.nClassesToImport+' classes in test db',function(done){
+
+				/*
+				var className='TstClass';
+				DB.class.create(className).then(function(r){
+					expect(r.originalName).to.be.equal(className);
+					done();
+				}).error(function(e){
+					done(e);
+				});
+				*/
+				expect(0).to.be.equal(steps.nClassesToImport);
+				done();
+
+			});
+
+			it('There should be '+steps.nClassesToImport+' new classes created in test db',function(done){
+
+				DB.class.list().then(function(r){
+
+					steps.nClassesAfterImport=r.length;
+					var delta=steps.nClassesAfterImport-steps.nClassesBeforeImport;
+
+					expect(delta).to.be.equal(steps.nClassesToImport);
+
+					done();
+
+				}).error(function(e){
+					done(e);
+				});
+
 			});
 
 		});

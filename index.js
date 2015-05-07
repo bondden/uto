@@ -9,6 +9,7 @@ var
 	path    = require('path'),
 	fs      = require('fs-extra'),
 	compile = require('./lib/compiler.js').run,
+	imp     = require('./lib/importer.js').importParsedData,
 	minify  = require('node-json-minify'),
 
 	parseContent=function(content){
@@ -209,12 +210,26 @@ var
 
 		fs.writeFileSync(targetFile,compiledData);
 
+	},
+
+	importPUML=function(umlFile,cnfFile){
+
+		//loadConfig
+		var serverConfig=JSON.parse(fs.readFileSync(cnfFile,'utf8')).server;
+
+		//parseData
+		var parsedData=parseFile(umlFile);
+
+		//importData
+		imp(serverConfig,parsedData);
+
 	}
 
 ;
 
 module.exports={
 
-	compileImportJSON:compileImportJSON
+	compileImportJSON:compileImportJSON,
+	importPUML:importPUML
 
 };
