@@ -6,26 +6,27 @@
 'use strict';
 
 var
-	expect      = require('chai').expect,
-	//should      = require('chai').should(),
-	//mocha       = require('mocha'),
-	fs          = require('fs-extra'),
-	validator   = require('is-my-json-valid'),
+	expect            = require('chai').expect,
+	fs                = require('fs-extra'),
+	validator         = require('is-my-json-valid'),
 
-	tmp         = './test/.tmp/',
-	tstFile     = tmp+'tst.atf.json',
-	tstSrcFile  = './test/class.puml/sample.0.1.atf.puml',
-	schemaFile  = './d/odb.schema.json',
-	initialOD   = './d/init.odb.json',
-	cnfFile     = './d/cnf.json',
+	tmp               = './test/.tmp/',
+	tstFile           = tmp+'tst.atf.json',
+	tstSrcFile        = './test/class.puml/sample.0.1.atf.puml',
+	schemaFile        = './d/odb.schema.json',
+	initialOD         = './d/init.odb.json',
+	cnfFile           = './d/cnf.json',
+	tstParsedDataFile = './test/d/parsedData.json',
 
-	odb         = require('oriento'),
-	u2j         = require('../index.js')
+	odb               = require('oriento'),
+
+	imp               = require('../lib/importer.js').importParsedData,
+	u2j               = require('../index.js')
 
 ;
-global.CNF=false;
-global.SRV=false;
-global.DB =false;
+global.CNF          = false;
+global.SRV          = false;
+global.DB           = false;
 
 describe('u2j Suit',function(){
 
@@ -95,9 +96,12 @@ describe('u2j Suit',function(){
 
 	describe('Req. 0.2. Generate schema online',function(){
 
-		before('Loading config',function(){
+		var testData={};
+
+		before('Loading test data',function(done){
 
 			global.CNF=JSON.parse(fs.readFileSync(cnfFile,'utf8'));
+			done();
 
 		});
 
@@ -113,7 +117,7 @@ describe('u2j Suit',function(){
 
 		});
 
-		describe('Req. 0.2.2. Connecting to local OrientDB server',function(){
+		/*describe('Req. 0.2.2. Connecting to local OrientDB server',function(){
 
 			it('Server should be initialized',function(done){
 				global.SRV=odb(JSON.parse(fs.readFileSync(cnfFile,'utf8')).server);
@@ -149,47 +153,90 @@ describe('u2j Suit',function(){
 
 			});
 
-		});
+		});*/
 
 		describe('Req. 0.2.3. Generating classes',function(){
 
 			this.timeout(5000);
 
-			var steps={
-				'nClassesBeforeImport':0,
-				'nClassesToImport':1,
-				'nClassesAfterImport':0
-			};
+			var
+				parsedData={},
+				steps={
+					'nClassesBeforeImport':0,
+					'nClassesToImport':8,
+					'nClassesAfterImport':0
+				}
+				;
 
 			before(function(done){
 
-				DB.class.list().then(function(r){
-					//expect(true).to.be.equal(8);
-					steps.nClassesBeforeImport=r.length;
+				fs.readFile(tstParsedDataFile, function(e, data){
+					if(e){
+						throw e
+					}
+
+					parsedData=JSON.parse(data);
+
 					done();
-				}).error(function(e){
-					done(e);
+
+					/*steps={
+						'nClassesBeforeImport':0,
+						'nClassesToImport':parsedData.classes.length,
+						'nClassesAfterImport':0
+					};*/
+
+					/*DB.class.list().then(function(r){
+						steps.nClassesBeforeImport=r.length;
+						done();
+					}).error(function(e){
+						done(e);
+					});*/
+
 				});
+
+			});
+
+			it('Values of classes to import must be a number',function(done){
+
+				expect(steps.nClassesToImport).to.be.a('number');
+				done();
 
 			});
 
 			it('It should create '+steps.nClassesToImport+' classes in test db',function(done){
 
-				/*
-				var className='TstClass';
-				DB.class.create(className).then(function(r){
-					expect(r.originalName).to.be.equal(className);
+				//var nClassesImported=0;
+
+				imp(CNF,parsedData,function(n){
+					expect(n).to.be.equal(steps.nClassesToImport);
+					console.log(n);
 					done();
-				}).error(function(e){
-					done(e);
 				});
-				*/
-				expect(0).to.be.equal(steps.nClassesToImport);
-				done();
+
+				/*parsedData.classes.forEach(function(v,i){
+
+					var className=v.name;
+					DB.class.create(className).then(function(r){
+						if(r.originalName===className){
+
+							nClassesImported++;
+							if(i+1==steps.nClassesToImport){
+								expect(nClassesImported).to.be.equal(steps.nClassesToImport);
+								done();
+							}
+
+						}
+					}).error(function(e){
+						if(i==steps.nClassesToImport){
+							done(e);
+						}
+					});
+
+				});*/
 
 			});
 
-			it('There should be '+steps.nClassesToImport+' new classes created in test db',function(done){
+			/*it('There should be '+steps.nClassesToImport+' new classes created in test db',function(done){
 
 				DB.class.list().then(function(r){
 
@@ -204,7 +251,7 @@ describe('u2j Suit',function(){
 					done(e);
 				});
 
-			});
+			});*/
 
 		});
 

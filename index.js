@@ -212,6 +212,10 @@ var
 
 	},
 
+	importDone=function(result){
+		console.log(result);
+	},
+
 	importPUML=function(umlFile,cnfFile){
 
 		//loadConfig
@@ -221,7 +225,7 @@ var
 		var parsedData=parseFile(umlFile);
 
 		//importData
-		imp(serverConfig,parsedData);
+		imp(serverConfig,parsedData,importDone);
 
 	}
 
