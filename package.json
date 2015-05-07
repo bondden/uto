@@ -27,6 +27,7 @@
   "engines": {
     "node": ">=0.12.0"
   },
+<<<<<<< HEAD
 	"dependencies": {
 		"fs-extra": "^0.18.2",
 		"node-json-minify": "^0.1.3-a",
@@ -44,4 +45,23 @@
 		"./d/",
 		"./lib/"
 	]
+=======
+  "dependencies": {
+    "fs-extra": "^0.18.2",
+    "node-json-minify": "^0.1.3-a",
+    "oriento": "^1.1.3"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "is-my-json-valid": "^2.10.1",
+    "istanbul": "^0.3.13",
+    "jscs": "^1.13.1",
+    "mocha": "*",
+    "mocha-lcov-reporter": "0.0.2"
+  },
+  "files": [
+    "./d/",
+    "./lib/"
+  ]
+>>>>>>> origin/u2j-5
 }
