@@ -8,7 +8,7 @@ var
 
 	path    = require('path'),
 	fs      = require('fs-extra'),
-	compile = require('./compiler.js').run,
+	compile = require('./lib/compiler.js').run,
 	minify  = require('node-json-minify'),
 
 	parseContent=function(content){
@@ -180,10 +180,17 @@ var
 
 	},
 
-	parseFile=function(umlFile,targetFile){
+	parseFile=function(umlFile){
 
 		var puml=fs.readFileSync(umlFile, 'utf8');
-		var parsedData=parseContent(puml);
+		return parseContent(puml);
+
+	},
+
+	compileImportJSON=function(umlFile,targetFile){
+
+		var parsedData=parseFile(umlFile);
+
 		var compiledData=minify(
 			JSON.stringify(
 				compile(parsedData)
@@ -208,6 +215,6 @@ var
 
 module.exports={
 
-	parseFile:parseFile
+	compileImportJSON:compileImportJSON
 
 };
