@@ -10,7 +10,7 @@ npm install u2j
 
 ## Technology Basics
 
-- [ ] todo: ..New Architecture.. 
+- [ ] todo: GraphDB Architecture Description 
 
 1) Create a [domain model](http://www.uml-diagrams.org/class-diagrams-overview.html#domain-model-diagram) with PlantUML class diagram, using either  
 	* [your favourite tool](http://plantuml.sourceforge.net/running.html) or
@@ -102,6 +102,16 @@ package Service {
 ```
 
 ## Resulting File
+
+## Road Map
+|Version  |Status     |Functionality |
+|---      |---        |---           |
+|0.1      |released   |Schema validated PlantUML to import.json conversion. Modules: ```index```, ```compiler``` |
+|0.2      |           |Automatic DB generator. Modules: ```dbgen``` |
+|0.3      |           |Interactive front-end. External graphic renderer. Modules: ```server```, ```assets``` |
+|0.4      |           |Internal server-side graphic renderer. Modules: ```plantuml-r``` |
+|0.5      |           |Export to PlantUML. Modules: ```orient-puml``` |
+|1.0      |           |Style guide, page. Modules: ```^assets```|
 
 ## License
 
