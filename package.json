@@ -1,5 +1,5 @@
 {
-  "name": "u2j",
+  "name": "uto",
   "version": "0.1.0",
   "description": "PlantUML class diagram to OrientDB import.json converter.",
   "keywords": [
@@ -9,9 +9,9 @@
     "graphdb",
     "nosql"
   ],
-  "homepage": "https://github.com/bondden/u2j",
+  "homepage": "https://github.com/bondden/uto",
   "bugs": {
-    "url": "https://github.com/bondden/u2j/issues"
+    "url": "https://github.com/bondden/uto/issues"
   },
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "email": "bond.den@gmail.com",
     "url": "https://github.com/bondden"
   },
-  "repository": "bondden/u2j",
+  "repository": "bondden/uto",
   "license": "MIT",
   "engines": {
     "node": ">=0.12.0"
@@ -38,7 +38,12 @@
 		"istanbul": "^0.3.13",
 		"jscs": "^1.13.1",
 		"mocha": "*",
-		"mocha-lcov-reporter": "0.0.2"
+		"mocha-lcov-reporter": "^0.0.2",
+		"gulp":"*",
+		"gulp-babel":"*",
+		"gulp-changed":"*",
+		"gulp-sourcemaps":"*",
+		"gulp-util":"*"
 	},
 	"files": [
 		"./d/",

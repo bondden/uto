@@ -8,6 +8,8 @@ d/e.json
 .dld
 .pcs
 .tmp
+.tst
+lib.src/
 ~*
 
 desktop.ini

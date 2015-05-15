@@ -112,6 +112,7 @@ package Service {
 |0.4      |           |Internal server-side graphic renderer. Modules: ```plantuml-r``` |
 |0.5      |           |Export to PlantUML. Modules: ```orient-puml``` |
 |1.0      |           |Style guide, page. Modules: ```^assets```|
+|2.0      |           |ESF requirements diagrams support.|
 
 ## License
 

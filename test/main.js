@@ -18,7 +18,7 @@ var
 	cnfFile           = './d/cnf.json',
 	tstParsedDataFile = './test/d/parsedData.json',
 
-	odb               = require('oriento'),
+	//odb               = require('oriento'),
 
 	imp               = require('../lib/importer.js').importParsedData,
 	u2j               = require('../index.js')
@@ -32,7 +32,7 @@ describe('u2j Suit',function(){
 
 	describe('Parsing test file',function(){
 
-		it('Test tst.atf.puml file should be generated',function(){
+		it('Test tst.atf.puml file should exist',function(){
 			expect(fs.existsSync(tstSrcFile)).to.be.true;
 		});
 
@@ -96,23 +96,56 @@ describe('u2j Suit',function(){
 
 	describe('Req. 0.2. Generate schema online',function(){
 
-		var testData={};
+		var
+			parsedData=false,
+		  cnf=false
+			;
 
-		before('Loading test data',function(done){
+		before('Loading config and test data',function(done){
 
-			global.CNF=JSON.parse(fs.readFileSync(cnfFile,'utf8'));
-			done();
+			var rec=0;
+			var rdy=function(caller){
+				[
+					'cnf',
+					'dat'
+				].forEach(function(v,i,a){
+					if(v==caller){
+						++rec;
+						if(rec===a.length){
+							rec=0;
+							done();
+							return;
+						}
+					}
+				});
+			};
+
+			fs.readFile(cnfFile, function(e,data){
+				if(e){
+					rdy('cnf');
+					throw e;
+				}
+				cnf=JSON.parse(data).server;
+				rdy('cnf');
+			});
+
+			fs.readFile(tstParsedDataFile, function(e,data){
+				if(e){
+					rdy('dat');
+					throw e;
+				}
+				parsedData=JSON.parse(data);
+				rdy('dat');
+			});
 
 		});
 
-		describe('Checking files',function(){
+		describe('Checking initial data',function(){
 
-			it('cnf.json should exist',function(){
-				expect(fs.existsSync(cnfFile)).to.be.true;
-			});
-
-			it('Config should be loaded',function(){
-				expect(CNF).to.be.an('object');
+			it('Config and parsedData should be ready',function(done){
+				expect(cnf).to.be.an('object');
+				expect(parsedData).to.be.an('object');
+				done();
 			});
 
 		});
@@ -157,59 +190,32 @@ describe('u2j Suit',function(){
 
 		describe('Req. 0.2.3. Generating classes',function(){
 
-			this.timeout(5000);
+			this.timeout(4000);
 
-			var
-				parsedData={},
-				steps={
-					'nClassesBeforeImport':0,
-					'nClassesToImport':8,
-					'nClassesAfterImport':0
-				}
-				;
+			var nClassesToImport=0;
 
 			before(function(done){
 
-				fs.readFile(tstParsedDataFile, function(e, data){
-					if(e){
-						throw e
-					}
-
-					parsedData=JSON.parse(data);
-
-					done();
-
-					/*steps={
-						'nClassesBeforeImport':0,
-						'nClassesToImport':parsedData.classes.length,
-						'nClassesAfterImport':0
-					};*/
-
-					/*DB.class.list().then(function(r){
-						steps.nClassesBeforeImport=r.length;
-						done();
-					}).error(function(e){
-						done(e);
-					});*/
-
-				});
-
-			});
-
-			it('Values of classes to import must be a number',function(done){
-
-				expect(steps.nClassesToImport).to.be.a('number');
+				nClassesToImport=parsedData.classes.length;
 				done();
 
 			});
 
-			it('It should create '+steps.nClassesToImport+' classes in test db',function(done){
+			it('Number of classes to import must be 8',function(done){
 
-				//var nClassesImported=0;
+				expect(nClassesToImport).to.be.a('number');
+				expect(nClassesToImport).to.be.equal(8);
+				done();
 
-				imp(CNF,parsedData,function(n){
-					expect(n).to.be.equal(steps.nClassesToImport);
+			});
+
+			it('It should create 8 classes in test db',function(done){
+
+				imp(cnf,parsedData,function(n){
+					console.log('imp callback called');
 					console.log(n);
+					expect(n.nClassesImported).to.be.a('number');
+					expect(n.nClassesImported).to.be.equal(8);
 					done();
 				});
 

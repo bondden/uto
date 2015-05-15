@@ -6,6 +6,8 @@
 		"username": "root",
 		"password": "H1LFQhngmHMLz5C9WcQw",
 		"dbName":"test",
-		"dbStorage":"plocal"
+		"dbStorage":"plocal",
+		"dbUsername":"admin",
+		"dbPassword":"admin"
 	}
 }
