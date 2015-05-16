@@ -1,11 +1,11 @@
-# u2j
+# UTO
 
 Node.JS module for [**PlantUML** Class Diagram](http://plantuml.sourceforge.net/classes.html) **to** [**OrientDB** Schema](http://orientdb.com/docs/last/Schema.html) (import.json) conversion.
 
 ## Installation
 
 ```sh
-npm install u2j
+npm install uto
 ```
 
 ## Technology Basics
