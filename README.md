@@ -47,7 +47,17 @@ The recent edition of the PlantUML reference is [downloadable in PDF-format](htt
 
 ## PlantUML Example
 
-```java
+<table>
+	<thead>
+		<tr>
+			<th>Code</th>
+			<th>Rendered Image</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				<pre lang="java">
 @startuml
 
 package Core{
@@ -99,19 +109,24 @@ package Service {
 }
 
 @enduml
-```
+				</pre>
+			</td>
+			<td> IMAGE </td>
+		</tr>
+	</tbody>
+</table>
 
 ## Resulting File
 
 ## Road Map
 |Version  |Status     |Functionality |
 |---      |---        |---           |
-|0.1      |released   |Schema validated PlantUML to import.json conversion. Modules: ```index```, ```compiler``` |
-|0.2      |           |Automatic DB generator. Modules: ```dbgen``` |
-|0.3      |           |Interactive front-end. External graphic renderer. Modules: ```server```, ```assets``` |
-|0.4      |           |Internal server-side graphic renderer. Modules: ```plantuml-r``` |
-|0.5      |           |Export to PlantUML. Modules: ```orient-puml``` |
-|1.0      |           |Style guide, page. Modules: ```^assets```|
+|0.1      |released   |Schema validated PlantUML to import.json conversion. Libraries: ```index```, ```compiler``` |
+|0.2      |           |Automatic DB generator. Libraries: ```importer``` |
+|0.3      |           |Interactive front-end. External graphic renderer. Libraries: ```server```, ```assets``` |
+|0.4      |           |Internal server-side graphic renderer. Libraries: ```renderer``` |
+|0.5      |           |Export to PlantUML. Libraries: ```exporter``` |
+|1.0      |           |Style guide, page. Libraries: ```^assets```|
 |2.0      |           |ESF requirements diagrams support.|
 
 ## License

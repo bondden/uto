@@ -2,91 +2,274 @@
  * Author: Denis Bondarenko <bond.den@gmail.com>
  * Created: 26.03.2015 20:26
  */
-
 'use strict';
+require('babel/polyfill');
 
 var
-	expect            = require('chai').expect,
-	fs                = require('fs-extra'),
-	validator         = require('is-my-json-valid'),
+	expect   =require('chai').expect,
+	fs       =require('fs-extra'),
+	validator=require('is-my-json-valid'),
+	colors    =require('colors'),
+	oriento  =require('oriento'),
 
-	tmp               = './test/.tmp/',
-	tstFile           = tmp+'tst.atf.json',
-	tstSrcFile        = './test/class.puml/sample.0.1.atf.puml',
-	schemaFile        = './d/odb.schema.json',
-	initialOD         = './d/init.odb.json',
-	cnfFile           = './d/cnf.json',
-	tstParsedDataFile = './test/d/parsedData.json',
+	cnfFile  ='./d/cnf.json',
 
-	//odb               = require('oriento'),
-
-	imp               = require('../lib/importer.js').importParsedData,
-	u2j               = require('../index.js')
-
+	Main     =require('../lib/main').Main
 ;
-global.CNF          = false;
-global.SRV          = false;
-global.DB           = false;
 
-describe('u2j Suit',function(){
+var app;
 
-	describe('Parsing test file',function(){
+describe('UTO Suit',function(){
 
-		it('Test tst.atf.puml file should exist',function(){
-			expect(fs.existsSync(tstSrcFile)).to.be.true;
+	describe('The application should be initialized',function(){
+		this.timeout(5000);
+
+		it('It should load Main class',function(done){
+
+			try{
+
+				app=new Main();
+
+				expect(app).to.be.an('object');
+
+				console.log('\ntest: app started\n');
+
+				app.initialized.then(function(d){
+
+					expect(d).to.be.true;
+
+					console.log('\ntest: app initialized\n');
+
+					done();
+
+				}).catch(function(e){
+					console.log('\ntest: app initialization error\n');
+					done(e);
+				});
+
+			}catch(e){
+
+				console.log('\ntest: Error 1:');
+				console.log(e);
+				done(e);
+
+			}
+
 		});
+
+	});
+
+	describe('It should load config',function(){
+
+		it('Config file should exist',function(){
+			expect(fs.existsSync(cnfFile)).to.be.true;
+		});
+
+		it('Config file should be compiled',function(done){
+			expect(app.cnf).to.be.an('object');
+			expect(app.cnf.p.cpl.indexOf('$')).to.equal(-1);
+			done();
+		});
+
+	});
+
+	describe('Checking files',function(){
+
+		it('Schema file is present',function(done){
+			expect(fs.existsSync(app.cnf.path.schemaFile)).to.be.true;
+			done();
+		});
+
+		it('Compiler should find initial OrientDB data',function(done){
+			expect(fs.existsSync(app.cnf.path.initialDBFile)).to.be.true;
+			done();
+		});
+
+		it('Test tst.atf.puml file should exist',function(done){
+			expect(fs.existsSync(app.cnf.test.path.src.pumlFile)).to.be.true;
+			done();
+		});
+
+		it('Test parsedData file should exist',function(done){
+			expect(fs.existsSync(app.cnf.test.path.src.parsedDataFile)).to.be.true;
+			done();
+		});
+
+		//todo check directories' permissions
 
 	});
 
 	describe('Req. 0.1. Converting PlantUML to import.json',function(){
 
-		describe('Checking files',function(){
+		it('Req. 0.1.1. It should parse *.puml class diagram file and store a temporary data',function(done){
+			//this.timeout(5000);
 
-			it('Schema file is present',function(){
-				expect(fs.existsSync(schemaFile)).to.be.true;
+			fs.emptyDir(app.cnf.test.path.tmp,function(e){
+
+				if(e){
+					console.log('test: ');
+					console.log(e);
+					done(e);
+				}
+
+				app.compilePumlToJson(
+					app.cnf.test.path.src.pumlFile,
+					app.cnf.test.path.dst.compiledTmpFile
+				).then(function(d){
+
+					expect(d).to.be.an('object');
+					expect(d.compiled).to.be.true;
+					expect(d.valid).to.be.true;
+					expect(d.error).to.be.null;
+					expect(d.saved).to.be.true;
+
+					done();
+
+				}).catch(function(e){
+
+					console.log('test: ');
+					console.log(e);
+					done(e);
+
+				});
+
 			});
 
-			it('Compiler should find initial OrientDB data',function(){
-				expect(fs.existsSync(initialOD)).to.be.true;
+
+
+		});
+
+		it('Req. 0.1.2. It should save the result to ./tmp/tst.atf.json file',function(done){
+
+			expect(fs.existsSync(app.cnf.test.path.dst.compiledTmpFile)).to.be.true;
+			done();
+
+		});
+
+		it('Req. 0.1.3. Resulting file should be well-formed JSON-file',function(done){
+
+			var jRaw=fs.readFileSync(app.cnf.test.path.dst.compiledTmpFile);
+			expect(JSON.parse(jRaw)).to.be.an('object');
+			done();
+
+		});
+
+		describe('Req. 0.1.4. It should validate resulting file against JSON schema.',function(){
+
+			//todo: create valid and invalid sample schemas for the test
+
+			it('"Compile" should return result.error message "Validation against schema failed" if the file is not valid',function(done){
+				//expect(false).to.be.true;
+				done();
+			});
+
+			it('"Compile" should return result.valid=true if the file is valid',function(done){
+				//expect(false).to.be.true;
+				done();
 			});
 
 		});
 
-		describe('Compiling Import JSON',function(){
+	});
 
-			before(function(){
+	describe('Req. 0.2. It should create DB schema classes from temporary parsed data',function(){
 
-				fs.emptyDirSync(tmp);
+		//before(function(){});
 
-				u2j.compileImportJSON(tstSrcFile,tstFile);
+		describe('Req. 0.2.1. It should connect to server',function(){
+
+			it('DB Client "Server" should be initialized',function(done){
+				expect(app.odbSrv).to.be.an('object');
+				done();
+			});
+
+		});
+
+		describe('Req. 0.2.2. It should detect if the database exists and, if yes, then use it, if no, then create it',function(){
+
+			it('db should be an object',function(done){
+				expect(app.db).to.be.an('object');
+				done();
+			});
+
+		});
+
+		describe('Req. 0.2.3. It should create classes, that do not exist',function(){
+			this.timeout(90000);
+
+			var srv,db,existentClasses=[],newClasses=[],absentClasses=[];
+			before(function(done){
+
+				app.parsedData.classes.forEach(function(c){
+					newClasses.push(c.name);
+				});
+
+				//absentClasses=newClasses.slice();
+
+				srv=oriento({
+					host     :'localhost',
+					port     :2424,
+					username :app.cnf.orient.server.username,
+					password :app.cnf.orient.server.password
+				});
+
+				db=srv.use({
+					name     :app.cnf.orient.db.name,
+					username :app.cnf.orient.db.username,
+					password :app.cnf.orient.db.password
+				});
+
+				db.class.list().then(function(classes){
+
+					classes.forEach(function(c){
+						existentClasses.push(c.name);
+						if(!newClasses.includes(c.name)){
+							absentClasses.push(c.name);
+						}
+					});
+
+					done();
+				}).catch(function(e){
+					done(e);
+				});
 
 			});
 
-			it('JSON file should exist',function(){
-				expect(fs.existsSync(tstFile)).to.be.true;
-			});
-
-			it('JSON should be well-formed',function(){
-				var jRaw=fs.readFileSync(tstFile);
-				expect(JSON.parse(jRaw)).to.be.an('object');
-			});
-
-			it('JSON data should be valid against Schema',function(){
-
-				var schemaRaw=fs.readFileSync(schemaFile);
-				var schema=JSON.parse(schemaRaw);
-
-				var jRaw=fs.readFileSync(tstFile);
-				var json=JSON.parse(jRaw);
-
-				var validate=validator(schema);
-				var validationResult=validate(json);
-
-				if(!validationResult){
-					console.log(validate.errors);
+			/*it('It should throw an Error on non-existent file',function(done){
+				try{
+					app.importPuml('abc').then(function(d){
+						expect(false).to.be.true;
+						done();
+					}).catch(function(e){
+						done();
+					});
+				}catch(e){
+					done();
 				}
+			});*/
 
-				expect(validationResult).to.be.true;
+			var nClassesBefore=existentClasses.length,
+			    nClassesToAdd=absentClasses.length;
+			it('Absent classes should be added',function(done){
+
+				app.importPuml(app.cnf.test.path.src.pumlFile).then(function(d){
+
+					console.log('test: ');
+					console.log(d);
+
+					db.class.list().then(function(rc){
+
+						var nClassesAfter=nClassesBefore+nClassesToAdd;
+						expect(rc.length).to.equal(nClassesAfter);
+
+						done();
+					}).catch(function(e){
+						done(e);
+					});
+
+				}).catch(function(e){
+					done(e);
+				});
 
 			});
 
@@ -94,176 +277,204 @@ describe('u2j Suit',function(){
 
 	});
 
-	describe('Req. 0.2. Generate schema online',function(){
+	/*describe('Req. 0.2. Generate schema online',function(){
 
-		var
-			parsedData=false,
-		  cnf=false
-			;
+	 var
+	 parsedData=false,
+	 cnf       =false
+	 ;
 
-		before('Loading config and test data',function(done){
+	 before('Loading config and test data',function(done){
 
-			var rec=0;
-			var rdy=function(caller){
-				[
-					'cnf',
-					'dat'
-				].forEach(function(v,i,a){
-					if(v==caller){
-						++rec;
-						if(rec===a.length){
-							rec=0;
-							done();
-							return;
-						}
-					}
-				});
-			};
+	 var rec=0;
+	 var rdy=function(caller){
+	 [
+	 'cnf',
+	 'dat'
+	 ].forEach(function(v,i,a){
+	 if(v==caller){
+	 ++rec;
+	 if(rec===a.length){
+	 rec=0;
+	 done();
+	 return;
+	 }
+	 }
+	 });
+	 };
 
-			fs.readFile(cnfFile, function(e,data){
-				if(e){
-					rdy('cnf');
-					throw e;
-				}
-				cnf=JSON.parse(data).server;
-				rdy('cnf');
-			});
+	 fs.readFile(d.cnfFile,function(e,data){
+	 if(e){
+	 rdy('cnf');
+	 throw e;
+	 }
+	 cnf=JSON.parse(data).server;
+	 rdy('cnf');
+	 });
 
-			fs.readFile(tstParsedDataFile, function(e,data){
-				if(e){
-					rdy('dat');
-					throw e;
-				}
-				parsedData=JSON.parse(data);
-				rdy('dat');
+	 fs.readFile(d.tstParsedDataFile,function(e,data){
+	 if(e){
+	 rdy('dat');
+	 throw e;
+	 }
+	 parsedData=JSON.parse(data);
+	 rdy('dat');
+	 });
+
+	 });
+
+	 describe('Checking initial data',function(){
+
+	 it('Config and parsedData should be ready',function(done){
+	 expect(cnf).to.be.an('object');
+	 expect(parsedData).to.be.an('object');
+	 done();
+	 });
+
+	 });
+
+	 describe('Req. 0.2.3. Generating classes',function(){
+
+	 this.timeout(4000);
+
+	 var nClassesToImport=0;
+
+	 before(function(done){
+
+	 nClassesToImport=parsedData.classes.length;
+	 done();
+
+	 });
+
+	 it('Number of classes to import must be 8',function(done){
+
+	 expect(nClassesToImport).to.be.a('number');
+	 expect(nClassesToImport).to.be.equal(8);
+	 done();
+
+	 });
+
+	 it('It should create 8 classes in test db',function(done){
+
+	 imp(cnf,parsedData,function(n){
+	 console.log('imp callback called');
+	 console.log(n);
+	 expect(n.nClassesImported).to.be.a('number');
+	 expect(n.nClassesImported).to.be.equal(8);
+	 done();
+	 });
+
+	 });
+
+	 });
+
+	 });*/
+
+	describe('Req. 0.3. There should be a web-interface',function(){
+
+		describe('Req. 0.3.1. It should have as minimum two-column layout, where left column is for PlamtUML code textarea, right column - for rendered image.',function(){
+
+			it('Web-interface url should be accessible',function(){
+
 			});
 
 		});
 
-		describe('Checking initial data',function(){
+		describe('Req. 0.3.2. The rendered image should be updated on the code in textarea changes. To render image it should use remote service from the official PlantUML site example.',function(){
 
-			it('Config and parsedData should be ready',function(done){
-				expect(cnf).to.be.an('object');
-				expect(parsedData).to.be.an('object');
-				done();
+			//use Selenium or Phantom
+
+			it('There should be a textarea',function(){
+
+			});
+
+			it('Should render an image after editing code in texterea',function(){
+
+			});
+
+			it('The resulting image should be visually equal to the sample',function(){
+
 			});
 
 		});
 
-		/*describe('Req. 0.2.2. Connecting to local OrientDB server',function(){
+	});
 
-			it('Server should be initialized',function(done){
-				global.SRV=odb(JSON.parse(fs.readFileSync(cnfFile,'utf8')).server);
-				expect(SRV).to.be.an('object');
-				done();
-			});
+	describe('Req. 0.4. It should use own renderer',function(){
 
-			it('Test database should be created',function(done){
+		describe('Req. 0.4.1. Dot renderer binaries should be installed on owned sever',function(){
 
-				var dbname='tmpTstDb';
-				SRV.drop(dbname).then(function(){
-
-					SRV.create({
-						name: dbname,
-						type: 'graph',
-						storage: 'memory'
-					}).then(function(db){
-
-						expect(db.name).to.equal(dbname);
-						global.DB=SRV.use(dbname);
-						done();
-
-					}).error(function(e){
-
-						console.log(e);
-						done(e);
-					});
-
-				}).error(function(e){
-					console.log(e);
-					done(e);
-				});
+			it('dot.exe should be reachable at the path or PATH',function(){
 
 			});
 
-		});*/
-
-		describe('Req. 0.2.3. Generating classes',function(){
-
-			this.timeout(4000);
-
-			var nClassesToImport=0;
-
-			before(function(done){
-
-				nClassesToImport=parsedData.classes.length;
-				done();
+			it('The app should have rights to run dot.exe',function(){
 
 			});
-
-			it('Number of classes to import must be 8',function(done){
-
-				expect(nClassesToImport).to.be.a('number');
-				expect(nClassesToImport).to.be.equal(8);
-				done();
-
-			});
-
-			it('It should create 8 classes in test db',function(done){
-
-				imp(cnf,parsedData,function(n){
-					console.log('imp callback called');
-					console.log(n);
-					expect(n.nClassesImported).to.be.a('number');
-					expect(n.nClassesImported).to.be.equal(8);
-					done();
-				});
-
-				/*parsedData.classes.forEach(function(v,i){
-
-					var className=v.name;
-					DB.class.create(className).then(function(r){
-						if(r.originalName===className){
-
-							nClassesImported++;
-							if(i+1==steps.nClassesToImport){
-								expect(nClassesImported).to.be.equal(steps.nClassesToImport);
-								done();
-							}
-
-						}
-					}).error(function(e){
-						if(i==steps.nClassesToImport){
-							done(e);
-						}
-					});
-
-				});*/
-
-			});
-
-			/*it('There should be '+steps.nClassesToImport+' new classes created in test db',function(done){
-
-				DB.class.list().then(function(r){
-
-					steps.nClassesAfterImport=r.length;
-					var delta=steps.nClassesAfterImport-steps.nClassesBeforeImport;
-
-					expect(delta).to.be.equal(steps.nClassesToImport);
-
-					done();
-
-				}).error(function(e){
-					done(e);
-				});
-
-			});*/
 
 		});
 
-		describe('3 Compiling test graph',function(){
+		describe('Req. 0.4.2. Web-interface should refer to owned server',function(){
+
+			//use traffic capture
+
+			it('Requests from web-interface should lead to it\'s host',function(){
+
+			});
 
 		});
+
+	});
+
+	describe('Req. 0.5. It should generate PlantUML code from OrientDB database schema',function(){
+
+		describe('Req. 0.5.1. It should save it to a file, available for download from web-interface',function(){
+
+			it('The generated file should exist',function(){
+
+			});
+
+			it('Reachable url to the file from the web-interface should exist',function(){
+
+			});
+
+		});
+
+		describe('Req. 0.5.2. It should render the generated file to image, available for download from web-interface',function(){
+
+			it('The image should exist',function(){
+
+			});
+
+			it('The image should look like it has no errors',function(){
+
+			});
+
+			it('URL to the image should be accessible',function(){
+
+			});
+
+		});
+
+	});
+
+	describe('Req. 1.0. There should be a documentation and a web-page',function(){
+
+		describe('Req. 1.0.1. There should be a web-page for the project',function(){
+
+		});
+
+		describe('Req. 1.0.2. It should contain the web-interface (req. 0.3.)',function(){
+
+		});
+
+		describe('Req. 1.0.3. There should be a descriptive documentation for the project',function(){
+
+		});
+
+	});
+
+	describe('Req. 2.0. It should support import of ESF requirements diagrams to OrientDB',function(){
 
 	});
 

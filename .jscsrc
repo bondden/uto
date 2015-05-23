@@ -1,22 +1,25 @@
 {
 	"disallowKeywords": ["with"],
-	"disallowKeywordsOnNewLine": ["else"],
-	"disallowMixedSpacesAndTabs": "smart",
+	"disallowKeywordsOnNewLine": ["else","catch"],
 	"disallowNewlineBeforeBlockStatements": true,
-	"disallowSpaceAfterObjectKeys": true,
+	"disallowSpaceAfterObjectKeys": "ignoreMultiLine",
 	"disallowSpaceAfterPrefixUnaryOperators": true,
 	"disallowSpacesInFunctionDeclaration": {
 		"beforeOpeningRoundBrace": true,
 		"beforeOpeningCurlyBrace": true
 	},
 	"disallowSpacesInsideParentheses": true,
+	"disallowTrailingComma":true,
 	"disallowTrailingWhitespace": "ignoreEmptyLines",
 	"maximumLineLength": 180,
 	"requireBlocksOnNewline":true,
 	"requireCamelCaseOrUpperCaseIdentifiers": true,
 	"requireCapitalizedConstructors": true,
-	"requireCurlyBraces": true,
 	"validateIndentation": "\t",
+	"disallowMixedSpacesAndTabs": "smart",
+	"requireCurlyBraces": true,
+	"requireAlignedObjectValues": "all",
+	"requireSemicolons": true,
 	"validateLineBreaks": "LF",
 
 	"excludeFiles": [

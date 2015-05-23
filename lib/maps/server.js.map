@@ -1,0 +1,1 @@
+{"version":3,"sources":["server.es7.js"],"names":[],"mappings":";;;;;;;;;;;AAGA,YAAY,CAAC;;IACA,MAAM,YAAN,MAAM;wBAAN,MAAM;;;QAAN,MAAM,GAAN,MAAM","file":"server.es7.js","sourcesContent":["/**\n * Created by Denis Bondarenko <bond.den@gmail.com> on 16.05.2015.\n */\n'use strict';\nexport class Server{\n\n}\n"],"sourceRoot":"/source/"}

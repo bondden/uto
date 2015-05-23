@@ -1,233 +1,197 @@
 @startuml
 
-'!include plantuml.inc/scf.puml
-
-namespace GDDBMSSystem{
-	class E{
-    +from
-    +to
-  }
-	class V
+package Core{
+	class Basic extends V{
+		+dateCreated:timeStamp
+		+dateChanged:timeStamp
+	}
+	class	Link extends E{
+		+type
+	}
 }
 
-namespace ESF{
-
-	package Core{
-		class Basic extends GDDBMSSystem.V{
-			+dateCreated:timeStamp
-      +dateChanged:timeStamp
+package Application{
+	package Permissions{
+		class UserRole extends Basic
+	}
+	package Content{
+		class ContentItem extends Basic
+		class SiteTreeBranch extends Basic
+	}
+	package UserPkg{
+		abstract class UserBasic extends Basic{
+			+email
+			+nickname
+			+photo
+			+photo_big
+			+bdate
+			+sex
+			+phone
+			+first_name
+			+last_name
+			+city
+			+country
 		}
-  	class	Link extends GDDBMSSystem.E{
-  	  +type
-  	}
-	}
-
-	package Application{
-		package Permissions{
-      class UserRole extends Basic
-    }
-    package Content{
-      class ContentItem extends Basic
-      class SiteTreeBranch extends Basic
-    }
-    package UserPkg{
-      abstract class UserBasic extends Basic{
-        +email
-        +nickname
-        +photo
-        +photo_big
-        +bdate
-        +sex
-        +phone
-        +first_name
-        +last_name
-        +city
-        +country
-      }
-      class User extends UserBasic{
-        +userId
-        +password
-        +tech{}
-        +socialIds[]
-      }
-      class UserSocial extends UserBasic{
-        +socialId
-        +network
-        +identity
-        +uid
-        +profile
-        +sessionCode
-      }
-    }
-	}
-
-	package Storage{
-
-		package Geo{
-      class GeoRegistry
-      class Place extends Basic{
-        +country
-        +timeZone
-        +city
-        +address
-        +addressObj
-        +geoCoord
-      }
-      Place ..> GeoRegistry
-    }
-    package Time{
-      class Period extends Basic{
-        +start:DateTime
-        +end:DateTime
-      }
-    }
-    package Social{
-      class Net extends Basic{
-        +name
-        +url
-        +idFormat
-      }
-    }
-		package Localization{
-      class LocDictionaryTerm extends Basic
-    }
-
-    package Law{
-
-      package Doc{
-        class DocumentTemplate extends Basic
-        class Document extends Basic{
-          +dateSigned
-          +documentId
-          +type
-          +templateId
-          +data
-          +author
-          +license
-          +srcDoc
-        }
-        Document .> DocumentTemplate
-      }
-
-      package BodyPkg{
-        abstract class Availability{
-          +calendar:Periods:SystemTime[]
-          +places:Place[]
-          +contacts:Contact[]
-          +links:Link[]
-        }
-        Availability ....> Place
-        Availability ....> Period
-
-        abstract class Body extends Basic{
-          +langs:string[]
-          +contacts:Contact[]
-          +availability:Availability
-        }
-        Body ..> Availability
-
-        class Legal extends Body{
-          +nameShort
-          +nameFull
-          +dateStart
-          +dateEnd
-          +stockLinks
-          +specificData
-        }
-        class Person extends Body{
-          +name
-          +familyName
-          +surName
-          +dateBirth
-          +dateDeath
-          +specificData
-        }
-        class Contact extends Basic{
-          +contactName
-          +reactionInterval
-        }
-        class NetId extends Contact{
-          +net
-          +profileId
-        }
-
-      }
-
-      package Fin{
-        class Currency extends Basic
-      }
-
-    }
-
-    package Ontology{
-      class ClassificationTaxClass extends Basic
-      class DefinedClass extends Basic
-      DefinedClass ..> ClassificationTaxClass
-    }
-
-    package Data{
-      class DataItem extends Basic
-      class DataItemRevision extends DataItem
-    }
-
-    NetId ..> Net
-    UserSocial ..> Net
-
-	}
-
-}
-
-namespace SETUSSD{
-
-	package ServicePkg{
-		class CGraph
-  	class Service{
-  		+options{}
-  		+subscriptions[]
-  		+api{}
-  		+graphs{}
-  		+documents:Document[]
-  	}
-  	class SET{
-  		+Legal:ESF.Legal
-  		+tarifs[]
-  	}
-
-  	Service --> CGraph :require
-
-  	package Log{
-      class Log
-      class LogRecord
-      LogRecord --o Log
-    }
-
-	}
-
-	package DocFin{
-	}
-
-	package Profile{
-		class Client{
+		class User extends UserBasic{
+			+userId
+			+password
+			+tech{}
+			+socialIds[]
 		}
-  	class Profile{
-      +user:ESF.User
-      +client:Client
-      +services:Service[]
-    }
-  	Client --o Profile
-  	User --o Profile
-  	Profile --> Service :require
+		class UserSocial extends UserBasic{
+			+socialId
+			+network
+			+identity
+			+uid
+			+profile
+			+sessionCode
+		}
+	}
+}
+
+package Storage{
+
+	package Geo{
+		class GeoRegistry
+		class Place extends Basic{
+			+country
+			+timeZone
+			+city
+			+address
+			+addressObj
+			+geoCoord
+		}
+	}
+	package Time{
+		class Period extends Basic{
+			+start:DateTime
+			+end:DateTime
+		}
+	}
+	package Social{
+		class Net extends Basic{
+			+name
+			+url
+			+idFormat
+		}
+	}
+	package Localization{
+		class LocDictionaryTerm extends Basic
+	}
+
+	package Law{
+
+		package Doc{
+			class DocumentTemplate extends Basic
+			class Document extends Basic{
+				+dateSigned
+				+documentId
+				+type
+				+templateId
+				+data
+				+author
+				+license
+				+srcDoc
+			}
+		}
+
+		package BodyPkg{
+			abstract class Availability{
+				+calendar:Periods:SystemTime[]
+				+places:Place[]
+				+contacts:Contact[]
+				+links:Link[]
+			}
+
+			abstract class Body extends Basic{
+				+langs:string[]
+				+contacts:Contact[]
+				+availability:Availability
+			}
+
+			class Legal extends Body{
+				+nameShort
+				+nameFull
+				+dateStart
+				+dateEnd
+				+stockLinks
+				+specificData
+			}
+			class Person extends Body{
+				+name
+				+familyName
+				+surName
+				+dateBirth
+				+dateDeath
+				+specificData
+			}
+			class Contact extends Basic{
+				+contactName
+				+reactionInterval
+			}
+			class NetId extends Contact{
+				+net
+				+profileId
+			}
+
+		}
+
+		package Fin{
+			class Currency extends Basic
+		}
 
 	}
 
-	package Support{
-		class HelpDesk
-		class Ticket --o HelpDesk
-		class Manager
-		Manager --o HelpDesk
+	package Ontology{
+		class ClassificationTaxClass extends Basic
+		class DefinedClass extends Basic
+	}
+
+	package Data{
+		class DataItem extends Basic
+		class DataItemRevision extends DataItem
 	}
 
 }
+
+package ServicePkg{
+	class CGraph
+	class Service{
+		+options{}
+		+subscriptions[]
+		+api{}
+		+graphs{}
+		+documents:Document[]
+	}
+	class SET{
+		+Legal:ESF.Legal
+		+tarifs[]
+	}
+
+	package Log{
+		class Log
+		class LogRecord
+	}
+
+}
+
+package Profile{
+	class Client
+	class Profile{
+		+user:ESF.User
+		+client:Client
+		+services:Service[]
+	}
+
+}
+
+package Support{
+	class HelpDesk
+	class Ticket
+	class Manager
+}
+
+
 
 SETUSSD.Client -u-|> Legal
 Manager -u-|> User

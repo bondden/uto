@@ -1,0 +1,44 @@
+@startuml
+
+!include inc/theme.puml
+
+title UTO Class Diagram
+
+class "Parser" as P {
+	+parsePumlFile(fileName:String):Boolean
+	-saveToDataFile(fileName)
+}
+
+class "Compiler" as C {
+	+setConfig(fileName:String)
+	+setJsonDataFile(fileName:String)
+	+compileToJsonFile(fileName:String, Data:Object)
+}
+
+class "Importer" as I {
+	+importDataFromFile(dataFileName:String)
+	+importData(data:Object)
+}
+
+class "Renderer" as R {
+	+renderScheme(targetFile:String)
+}
+
+class "Server" as S {
+	+renderPuml(pumlCode:String)
+}
+
+class "Main" as M {
+	+config
+	+parsedData:Object
+	+renderedImage:String
+	+loadConfig(cnfFileName:String)
+}
+
+M *- P
+M *-- C
+M *-l- I
+M *--- R
+M *-- S
+
+@enduml

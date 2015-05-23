@@ -1,13 +1,72 @@
 {
-	"server":{
-		"host": "localhost",
-		"port": 2424,
-		"httpPort": 2480,
-		"username": "root",
-		"password": "H1LFQhngmHMLz5C9WcQw",
-		"dbName":"test",
-		"dbStorage":"plocal",
-		"dbUsername":"admin",
-		"dbPassword":"admin"
+	"orient":{
+		"server":{
+			"host":"localhost",
+			"port":2424,
+			"httpPort":2480,
+			"username":"root",
+			"password":"H1LFQhngmHMLz5C9WcQw"
+		},
+		"db":{
+			"name":"test",
+			"storage":"plocal",
+			"username":"admin",
+			"password":"admin"
+		}
+	},
+	"path":{
+		"dot":"",
+		"dataDir":"./d/",
+		"tmpDir":"./.tmp/",
+		"webDir":"./web/",
+		"renderedImages":"./web/d/r/",
+		"generatedPumlFiles":"./web/d/u/",
+		"compiledJsonFiles":"./web/d/c/",
+		"schemaFile":"./d/odb.schema.json",
+		"initialDBFile":"./d/init.odb.json",
+		"logFile":"./d/log.log"
+	},
+	"p":{
+		"d":"${path.dataDir}",
+		"tmp":"${path.tmpDir}",
+		"web":"${path.webDir}",
+		"img":"${path.webDir}d/r/",
+		"uml":"${path.webDir}d/u/",
+		"cpl":"${path.webDir}d/c/"
+	},
+	"web":{
+		"pageUrl":"",
+		"assets":"${path.webDir}a/",
+		"imageUrlPrefix":"/d/r/",
+		"codeUrlPrefix":"/d/u/",
+		"importUrlPrefix":"/d/c/"
+	},
+	"modules":{
+		"server":{},
+		"importer":{},
+		"exporter":{},
+		"compiler":{},
+		"parser":{},
+		"renderer":{},
+		"main":{}
+	},
+	"test":{
+		"path":{
+			"root":"./test/",
+			"tmp":"./test/.tmp/",
+			"src":{
+				"pumlFile":"${test.path.root}class.puml/tst.atf.puml",
+				"parsedDataFile":"${test.path.root}d/parsedData.json"
+			},
+			"dst":{
+				"compiledTmpFile":"${test.path.tmp}tst.atf.json"
+			}
+		},
+		"db":{
+			"name":"test",
+			"storage":"plocal",
+			"username":"admin",
+			"password":"admin"
+		}
 	}
 }
