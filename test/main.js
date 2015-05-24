@@ -9,7 +9,7 @@ var
 	expect   =require('chai').expect,
 	fs       =require('fs-extra'),
 	validator=require('is-my-json-valid'),
-	colors    =require('colors'),
+	clc = require('cli-color'),
 	oriento  =require('oriento'),
 
 	cnfFile  ='./d/cnf.json',
@@ -195,7 +195,7 @@ describe('UTO Suit',function(){
 		});
 
 		describe('Req. 0.2.3. It should create classes, that do not exist',function(){
-			this.timeout(90000);
+			this.timeout(40000);
 
 			var srv,db,existentClasses=[],newClasses=[],absentClasses=[];
 			before(function(done){
@@ -235,7 +235,7 @@ describe('UTO Suit',function(){
 
 			});
 
-			/*it('It should throw an Error on non-existent file',function(done){
+			it('It should throw an Error on non-existent file',function(done){
 				try{
 					app.importPuml('abc').then(function(d){
 						expect(false).to.be.true;
@@ -246,7 +246,7 @@ describe('UTO Suit',function(){
 				}catch(e){
 					done();
 				}
-			});*/
+			});
 
 			var nClassesBefore=existentClasses.length,
 			    nClassesToAdd=absentClasses.length;
@@ -277,100 +277,30 @@ describe('UTO Suit',function(){
 
 	});
 
-	/*describe('Req. 0.2. Generate schema online',function(){
-
-	 var
-	 parsedData=false,
-	 cnf       =false
-	 ;
-
-	 before('Loading config and test data',function(done){
-
-	 var rec=0;
-	 var rdy=function(caller){
-	 [
-	 'cnf',
-	 'dat'
-	 ].forEach(function(v,i,a){
-	 if(v==caller){
-	 ++rec;
-	 if(rec===a.length){
-	 rec=0;
-	 done();
-	 return;
-	 }
-	 }
-	 });
-	 };
-
-	 fs.readFile(d.cnfFile,function(e,data){
-	 if(e){
-	 rdy('cnf');
-	 throw e;
-	 }
-	 cnf=JSON.parse(data).server;
-	 rdy('cnf');
-	 });
-
-	 fs.readFile(d.tstParsedDataFile,function(e,data){
-	 if(e){
-	 rdy('dat');
-	 throw e;
-	 }
-	 parsedData=JSON.parse(data);
-	 rdy('dat');
-	 });
-
-	 });
-
-	 describe('Checking initial data',function(){
-
-	 it('Config and parsedData should be ready',function(done){
-	 expect(cnf).to.be.an('object');
-	 expect(parsedData).to.be.an('object');
-	 done();
-	 });
-
-	 });
-
-	 describe('Req. 0.2.3. Generating classes',function(){
-
-	 this.timeout(4000);
-
-	 var nClassesToImport=0;
-
-	 before(function(done){
-
-	 nClassesToImport=parsedData.classes.length;
-	 done();
-
-	 });
-
-	 it('Number of classes to import must be 8',function(done){
-
-	 expect(nClassesToImport).to.be.a('number');
-	 expect(nClassesToImport).to.be.equal(8);
-	 done();
-
-	 });
-
-	 it('It should create 8 classes in test db',function(done){
-
-	 imp(cnf,parsedData,function(n){
-	 console.log('imp callback called');
-	 console.log(n);
-	 expect(n.nClassesImported).to.be.a('number');
-	 expect(n.nClassesImported).to.be.equal(8);
-	 done();
-	 });
-
-	 });
-
-	 });
-
-	 });*/
-
 	describe('Req. 0.3. There should be a web-interface',function(){
+
+		describe('Express server should be on',function(){
+
+			it('Express Server should be initialized',function(done){
+				expect(app.server.x).to.be.an('object');
+				done();
+			});
+
+			it('Express Server should listen port 80',function(done){
+
+				console.log('openinig http://localhost:80...');
+
+				var page = require('webpage').create();
+
+				page.open('http://localhost:80', function(s){
+					console.log(s);
+					phantom.exit();
+					done();
+				});
+
+			});
+
+		});
 
 		describe('Req. 0.3.1. It should have as minimum two-column layout, where left column is for PlamtUML code textarea, right column - for rendered image.',function(){
 

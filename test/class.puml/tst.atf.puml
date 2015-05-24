@@ -2,149 +2,39 @@
 
 package Core{
 	class Basic extends V{
-		+dateCreated:timeStamp
-		+dateChanged:timeStamp
+		+dateCreated:datetime
+		+dateChanged:datetime
 	}
 	class	Link extends E{
 		+type
 	}
 }
 
-package Application{
-	package Permissions{
-		class UserRole extends Basic
-	}
-	package Content{
-		class ContentItem extends Basic
-		class SiteTreeBranch extends Basic
-	}
-	package UserPkg{
-		abstract class UserBasic extends Basic{
-			+email
-			+nickname
-			+photo
-			+photo_big
-			+bdate
-			+sex
-			+phone
-			+first_name
-			+last_name
-			+city
-			+country
-		}
-		class User extends UserBasic{
-			+userId
-			+password
-			+tech{}
-			+socialIds[]
-		}
-		class UserSocial extends UserBasic{
-			+socialId
-			+network
-			+identity
-			+uid
-			+profile
-			+sessionCode
-		}
-	}
-}
-
 package Storage{
-
-	package Geo{
-		class GeoRegistry
-		class Place extends Basic{
-			+country
-			+timeZone
-			+city
-			+address
-			+addressObj
-			+geoCoord
-		}
-	}
-	package Time{
-		class Period extends Basic{
-			+start:DateTime
-			+end:DateTime
-		}
-	}
-	package Social{
-		class Net extends Basic{
-			+name
-			+url
-			+idFormat
-		}
-	}
-	package Localization{
-		class LocDictionaryTerm extends Basic
-	}
 
 	package Law{
 
-		package Doc{
-			class DocumentTemplate extends Basic
-			class Document extends Basic{
-				+dateSigned
-				+documentId
-				+type
-				+templateId
-				+data
-				+author
-				+license
-				+srcDoc
-			}
+		abstract class Body extends Basic{
+			+langs:string[]
+			+contacts:Contact[]
 		}
 
-		package BodyPkg{
-			abstract class Availability{
-				+calendar:Periods:SystemTime[]
-				+places:Place[]
-				+contacts:Contact[]
-				+links:Link[]
-			}
-
-			abstract class Body extends Basic{
-				+langs:string[]
-				+contacts:Contact[]
-				+availability:Availability
-			}
-
-			class Legal extends Body{
-				+nameShort
-				+nameFull
-				+dateStart
-				+dateEnd
-				+stockLinks
-				+specificData
-			}
-			class Person extends Body{
-				+name
-				+familyName
-				+surName
-				+dateBirth
-				+dateDeath
-				+specificData
-			}
-			class Contact extends Basic{
-				+contactName
-				+reactionInterval
-			}
-			class NetId extends Contact{
-				+net
-				+profileId
-			}
-
+		class Legal extends Body{
+			+nameShort
+			+nameFull
+			+stockLinks
+		}
+		class Person extends Body{
+			+name:String
+			+familyName:String
+			+dateBirth
+			+dateDeath
+		}
+		class Contact extends Basic{
+			+contactName
+			+reactionInterval
 		}
 
-		package Fin{
-			class Currency extends Basic
-		}
-
-	}
-
-	package Ontology{
-		class ClassificationTaxClass extends Basic
-		class DefinedClass extends Basic
 	}
 
 	package Data{
@@ -154,47 +44,8 @@ package Storage{
 
 }
 
-package ServicePkg{
-	class CGraph
-	class Service{
-		+options{}
-		+subscriptions[]
-		+api{}
-		+graphs{}
-		+documents:Document[]
-	}
-	class SET{
-		+Legal:ESF.Legal
-		+tarifs[]
-	}
-
-	package Log{
-		class Log
-		class LogRecord
-	}
-
+package Service {
+	Client -u-|> Legal
 }
-
-package Profile{
-	class Client
-	class Profile{
-		+user:ESF.User
-		+client:Client
-		+services:Service[]
-	}
-
-}
-
-package Support{
-	class HelpDesk
-	class Ticket
-	class Manager
-}
-
-
-
-SETUSSD.Client -u-|> Legal
-Manager -u-|> User
-
 
 @enduml

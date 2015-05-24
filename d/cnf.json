@@ -14,6 +14,7 @@
 			"password":"admin"
 		}
 	},
+	"timeout":30000,
 	"path":{
 		"dot":"",
 		"dataDir":"./d/",
@@ -29,7 +30,10 @@
 	"p":{
 		"d":"${path.dataDir}",
 		"tmp":"${path.tmpDir}",
-		"web":"${path.webDir}",
+		"web":{
+			"root":"${path.webDir}",
+			"assets":"${path.webDir}/a/"
+		},
 		"img":"${path.webDir}d/r/",
 		"uml":"${path.webDir}d/u/",
 		"cpl":"${path.webDir}d/c/"

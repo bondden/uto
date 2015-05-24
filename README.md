@@ -122,7 +122,7 @@ package Service {
 |Version  |Status     |Functionality |
 |---      |---        |---           |
 |0.1      |released   |Schema validated PlantUML to import.json conversion. Libraries: ```index```, ```compiler``` |
-|0.2      |           |Automatic DB generator. Libraries: ```importer``` |
+|0.2      |rc         |Automatic DB generator. Libraries: ```importer``` |
 |0.3      |           |Interactive front-end. External graphic renderer. Libraries: ```server```, ```assets``` |
 |0.4      |           |Internal server-side graphic renderer. Libraries: ```renderer``` |
 |0.5      |           |Export to PlantUML. Libraries: ```exporter``` |
