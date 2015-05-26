@@ -1,7 +1,7 @@
 {
   "name": "uto",
-  "version": "0.2.0",
-  "description": "PlantUML class diagram to OrientDB import.json converter.",
+  "version": "0.2.1",
+  "description": "PlantUML class diagram to OrientDB schema converter.",
   "keywords": [
     "plantuml",
     "orientdb",
@@ -61,6 +61,7 @@
   },
   "files": [
     "./d/",
-    "./lib/"
+    "./lib/",
+    "./lib.src/"
   ]
 }
