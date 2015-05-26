@@ -2,11 +2,14 @@
  * Created by Denis Bondarenko <bond.den@gmail.com> on 16.05.2015.
  */
 'use strict';
+
+import * as UtilLib from '../lib/util'
+
 var
 	fs=require('fs-extra'),
 	path=require('path'),
 	minify  = require('node-json-minify'),
-	colors = require('colors')
+	L	= UtilLib.Util.log
 ;
 /**
  * Compiles parsed *.puml data to OrientDB import.json
@@ -57,8 +60,8 @@ export class Compiler{
 				}
 
 			}).catch(function(e){
-				console.log('Error:'.red);
-				console.log(e);
+				L('Error #1','er');
+				L(e);
 				reject(e);
 			});
 
@@ -396,7 +399,7 @@ export class Compiler{
 			let validationResult=validate(json);
 
 			if(!validationResult){
-				console.log(validate.errors);
+				L(validate.errors);
 			}
 
 			//console.log('3. result is ready');

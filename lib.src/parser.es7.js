@@ -2,11 +2,12 @@
  * Created by Denis Bondarenko <bond.den@gmail.com> on 16.05.2015.
  */
 'use strict';
+
+import * as UtilLib from '../lib/util'
+
 var
 	fs=require('fs'),
-	//chalk    =require('chalk'),
-	colors = require('colors'),
-	clc = require('cli-color')
+	L	= UtilLib.Util.log
 ;
 /**
  * Parses *.puml to temporary json format and to memory
@@ -35,7 +36,8 @@ export class Parser{
 				}
 				fs.readFile(srcFile, function(e,d){
 					if(e){
-						console.log(e);
+						L('Error #2','er');
+						L(e);
 						reject(e);
 					}
 
@@ -63,8 +65,8 @@ export class Parser{
 		try{
 			content=(content+'').replace(/^\s*'(.*)$/mgi,'');
 		}catch(e){
-			console.log(clc.red('Error:'));
-			console.log(e);
+			L('Error #1','er');
+			L(e);
 			throw e;
 		}
 

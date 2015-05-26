@@ -9,6 +9,7 @@ import * as ParserLib from '../lib/parser'
 import * as ExporterLib from '../lib/exporter'
 import * as RendererLib from '../lib/renderer'
 import * as ImporterLib from '../lib/importer'
+import * as UtilLib from '../lib/util'
 
 var
 	Server  =ServerLib.Server,
@@ -25,8 +26,7 @@ var
 	traverse =require('traverse'),
 	templater=require('json-templater/string'),
 	odb       =require('oriento'),
-	//colors = require('colors')
-	clc = require('cli-color')
+	L	= UtilLib.Util.log
 ;
 
 var cplTpl=function(s,root){
@@ -90,8 +90,8 @@ export class Main {
 			holder.init().then(function holderInitThen(d){
 				resolve(d);
 			}).catch(function(e){
-				console.log(clc.red('\nError Main#8'));
-				console.log(e);
+				L('\nError Main#8','er');
+				L(e);
 				reject(e);
 			});
 
@@ -149,8 +149,8 @@ export class Main {
 					if(holder.db){
 						resolve(holder.db);
 					}else{
-						console.log(clc.red('\nError Main#7'));
-						console.log(e);
+						L('\nError Main#7','er');
+						L(e);
 						reject(holder.db);
 					}
 
@@ -163,8 +163,8 @@ export class Main {
 					}).then(function (d){
 						resolve(d);
 					}).catch(function(e){
-						console.log(clc.red('\nError Main#6'));
-						console.log(e);
+						L('\nError Main#6','er');
+						L(e);
 						reject(e);
 					});
 
@@ -176,7 +176,7 @@ export class Main {
 
 			}).catch(function(e){
 
-				console.log(clc.red('\nError Main#5'));
+				L('\nError Main#5','er');
 				console.log(e);
 				reject(e);
 
@@ -195,8 +195,8 @@ export class Main {
 			fs.readFile('./d/cnf.json',function(e,d){
 
 				if(e){
-					console.log(clc.red('\nError Main#4'));
-					console.log(e);
+					L('\nError Main#4','er');
+					L(e);
 					reject(e);
 				}
 
@@ -225,14 +225,16 @@ export class Main {
 					resolve(true);
 
 				}).catch(function(e){
-					console.log(clc.red('\nError Main#3'));
-					console.log(e);
+					//console.log(clc.red('\nError Main#3'));
+					L('\nError Main#3','er');
+					L(e);
 					reject(e);
 				});
 
 			}).catch(function(e){
-				console.log(clc.red('\nError Main#8'));
-				console.log(e);
+				//console.log(clc.red('\nError Main#8'));
+				L('\nError Main#8','er');
+				L(e);
 				reject(e);
 			});
 
@@ -293,7 +295,7 @@ export class Main {
 
 				holder.importer.importParsedData(holder.parsedData).then(function(d1){
 
-					console.log(clc.white(`d1: ${d1}`));
+					L(`d1: ${d1}`);
 					resolve(d1);
 
 				}).catch(function(e){
@@ -306,8 +308,8 @@ export class Main {
 
 			}).catch(function(e){
 
-				console.log(clc.red('\nError Main#2'));
-				console.log(e);
+				L('\nError Main#2','er');
+				L(e);
 				reject(e);
 
 			});
@@ -327,4 +329,4 @@ export class Main {
 
 }
 
-console.log('//after main\n');
+L('//after main\n');

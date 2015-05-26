@@ -9,7 +9,7 @@ var
 	expect   =require('chai').expect,
 	fs       =require('fs-extra'),
 	validator=require('is-my-json-valid'),
-	clc = require('cli-color'),
+	clc 		 =require('cli-color'),
 	oriento  =require('oriento'),
 
 	cnfFile  ='./d/cnf.json',

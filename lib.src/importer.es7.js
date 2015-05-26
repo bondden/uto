@@ -6,12 +6,12 @@
  * Connects to OrientDb server.
  * Creates DB schema or adds classes to existent schema from parsedData.
  */
-var
-	chalk    =require('chalk'),
-	//colors = require('colors'),
-	clc = require('cli-color'),
-  fs=require('fs')
 
+import * as UtilLib from '../lib/util'
+
+var
+	fs=require('fs'),
+	L	= UtilLib.Util.log
 ;
 
 export class Importer {
@@ -42,9 +42,9 @@ export class Importer {
 
 			}).catch(function(e){
 
-				console.log(clc.red('Error #3'));
-				console.log(e);
-				console.log('query: '+q);
+				L('Error #3','er');
+				L(e);
+				L('query: '+q);
 
 				//todo: normal logging or remove in open version
 				let date=new Date();
@@ -136,10 +136,10 @@ export class Importer {
 
 				}).catch(function(e){
 
-					console.log(clc.red('Error #4'));
-					console.log(e);
-					console.log(clc.white('props of '+classData.name));
-					console.log('\n');
+					L('Error #4','er');
+					L(e);
+					L('props of '+classData.name);
+					L();
 					reject(e);
 
 				});
@@ -154,8 +154,8 @@ export class Importer {
 
 			}).catch(function(e){
 
-				console.log(clc.red('Error #5'));
-				console.log(e);
+				L('Error #5','er');
+				L(e);
 				reject(e);
 
 			});
@@ -209,16 +209,16 @@ export class Importer {
 
 								}).catch(function(e){
 
-									console.log(clc.red('Error #12'));
-									console.log(e);
+									L('Error #12','er');
+									L(e);
 									reject(e);
 
 								});
 
 							}).catch(function(e){
 
-								console.log(clc.red('Error #10'));
-								console.log(e);
+								L('Error #10','er');
+								L(e);
 								reject(e);
 
 							});
@@ -235,8 +235,8 @@ export class Importer {
 
 						}).catch(function(e){
 
-							console.log(clc.red('\nError #11'));
-							console.log(e);
+							L('Error #11','er');
+							L(e);
 							reject(e);
 
 						});
@@ -292,16 +292,16 @@ export class Importer {
 
 				}).catch(function(e){
 
-					console.log(clc.red('Error #6'));
-					console.log(e);
+					L('Error #6','er');
+					L(e);
 					reject(new Error('Error in database communication #1'));
 
 				});
 
 			}catch(e){
 
-				console.log('Error #7'.red);
-				console.log(e);
+				L('Error #7','er');
+				L(e);
 				reject(new Error('Error in database communication #2'));
 
 			}
