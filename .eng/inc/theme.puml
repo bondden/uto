@@ -1,0 +1,17 @@
+skinparam {
+	backgroundColor #3C3F41
+	shadowing false
+
+	titleFontColor WhiteSmoke
+
+	classArrowColor LightSlateGray
+	classBorderColor LightSlateGray
+	classBackgroundColor WhiteSmoke
+	stereotypeCBackgroundColor GhostWhite
+	classFontStyle bold
+
+	componentStyle uml2
+
+}
+
+footer (c) 2015 Denis Bondarenko

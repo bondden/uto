@@ -1,0 +1,169 @@
+@startuml
+
+!include inc/theme.puml
+
+skinparam {
+
+	'componentFontColor DarkSlateGrey
+	componentBackgroundColor WhiteSmoke
+	componentBorderColor LightSlateGray
+	componentArrowColor LightSlateGray
+
+	interfaceBackgroundColor WhiteSmoke
+  interfaceBorderColor LightSlateGray
+  interfaceFontColor WhiteSmoke
+
+	packageBorderColor WhiteSmoke
+	nodeBorderColor WhiteSmoke
+	folderBorderColor WhiteSmoke
+	packageFontColor WhiteSmoke
+	folderFontColor WhiteSmoke
+	nodeFontColor WhiteSmoke
+	componentArrowFontColor WhiteSmoke
+
+	rectangleBackgroundColor WhiteSmoke
+	rectangleBorderColor LightSlateGray
+	rectangleArrowColor LightSlateGray
+	rectangleFontSize 12
+}
+
+title UTO Components
+
+node "Server Machine" {
+
+	[JRE]
+	[OrientDB]
+
+	folder node_modules {
+
+		package dependencies {
+			package express as E {
+			}
+			package fs-extra as fs {
+	    }
+	    package "is-my-json-valid" as V {
+	    }
+	    package oriento as O {
+	      () "Oriento-API" as api
+      }
+      O -- OrientDB :use
+    }
+
+		package devDependencies {
+			package mocha{
+			}
+			package chai {
+			}
+			package "mocha-lcov" as lcov {
+      }
+      package istanbul {
+      }
+			package gulp {
+			}
+			package jscs {
+      }
+      package source-maps as srcmaps{
+      }
+      package uglify {
+      }
+			package babel {
+	    }
+	    rectangle "gulpfile.js" as gulpfile
+	    rectangle ".jscrc" as jscrc
+	    rectangle ".editorconfig" as editorconfig
+	    rectangle ".gitattributes" as gitattr
+	    rectangle ".gitignore" as gitignore
+	    rectangle ".npmignore" as npmignore
+
+			gulpfile -u-> gulp :require
+	    gulpfile -u-> babel :require
+	    gulpfile -u-> uglify :require
+	    gulpfile -u-> srcmaps :require
+
+	    mocha -u-> lcov :use
+	    mocha -u-> chai :use
+
+	    jscrc -u-> jscs :require
+		}
+
+		package UTO {
+
+			rectangle package.json
+			rectangle README.md
+			rectangle LICENSE
+			rectangle "uto.json" as cnf
+
+			folder bin {
+				rectangle plantuml.jar as plantuml
+				plantuml -- JRE :require
+			}
+
+			[Parser] as P
+			[Compiler] as C
+			[Importer] as I
+			[Renderer] as R
+			[Exporter] as X
+			[Server] as S
+			[Main] as M
+
+			I -- () api :use
+			X -- () api :use
+
+			P -- () pumlFileToParse :set
+			P -- () parsedData :write
+			C -- () jsonFileToGen :set
+			X -- () pumlFileToGen :set
+			M -- () loadConfig :void
+			M -u- () config :set
+			loadConfig -- cnf
+
+			I -- config :require
+
+			folder "test" as T {
+
+				folder d {
+					rectangle "sample.puml"
+				}
+
+				rectangle main.js
+				main.js -u-> mocha :require
+
+			}
+
+			folder "Assets" as A {
+			}
+
+			folder "Data" as D {
+				folder ".tmp" as tmp {
+					rectangle "parsedData[tmpId].json" as parsed
+				}
+				rectangle "odb.schema.json" as schema
+	    }
+
+			S -u-> E :require
+			C --> schema :use
+			P --> parsed :use
+
+		}
+
+		P -u-> fs :require
+		C -u-> V :require
+
+	}
+}
+
+node "Client Machine" {
+	node "Browser" {
+
+		[SPA]
+
+	}
+}
+
+S - () HTTP
+A - HTTP
+SPA - HTTP
+
+
+
+@enduml
