@@ -24,7 +24,7 @@ describe('UTO Suit',function(){
 	describe('The application should be initialized',function(){
 		this.timeout(5000);
 
-		it('It should load Main class',function(done){
+		it('It should initialize new Main class',function(done){
 
 			try{
 
@@ -241,9 +241,11 @@ describe('UTO Suit',function(){
 						expect(false).to.be.true;
 						done();
 					}).catch(function(e){
+						//console.log('Done 1'); -- Ok
 						done();
 					});
 				}catch(e){
+					//console.log('Done 2');
 					done();
 				}
 			});
@@ -286,9 +288,9 @@ describe('UTO Suit',function(){
 				done();
 			});
 
-			it('Express Server should listen port 80',function(done){
+			it('Express Server should listen port 18204',function(done){
 
-				console.log('openinig http://localhost:80...');
+				console.log('openinig http://localhost:18204...');
 
 				var page = require('webpage').create();
 
@@ -409,3 +411,4 @@ describe('UTO Suit',function(){
 	});
 
 });
+

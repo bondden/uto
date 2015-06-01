@@ -90,8 +90,7 @@ export class Main {
 			holder.init().then(function holderInitThen(d){
 				resolve(d);
 			}).catch(function(e){
-				L('\nError Main#8','er');
-				L(e);
+				L('\nError Main#8','er',e);
 				reject(e);
 			});
 
@@ -136,7 +135,7 @@ export class Main {
 			holder.odbSrv.exists(
 				holder.cnf.orient.db.name,
 				holder.cnf.orient.db.storage
-			).then(function srvExistsThen(d){
+			).then(function (d){
 
 				if(d){
 
@@ -149,8 +148,7 @@ export class Main {
 					if(holder.db){
 						resolve(holder.db);
 					}else{
-						L('\nError Main#7','er');
-						L(e);
+						L('\nError Main#7','er',e);
 						reject(holder.db);
 					}
 
@@ -163,21 +161,19 @@ export class Main {
 					}).then(function (d){
 						resolve(d);
 					}).catch(function(e){
-						L('\nError Main#6','er');
-						L(e);
+						L('\nError Main#6','er',e);
 						reject(e);
 					});
 
 				}
 
-				/*console.log('\nError Main#21'.red);
+				/*
 				console.log(holder.db);
 				reject(new Error(holder.db));*/
 
 			}).catch(function(e){
 
-				L('\nError Main#5','er');
-				console.log(e);
+				L('\nError Main#5','er',e);
 				reject(e);
 
 			});
@@ -195,8 +191,7 @@ export class Main {
 			fs.readFile('./d/cnf.json',function(e,d){
 
 				if(e){
-					L('\nError Main#4','er');
-					L(e);
+					L('\nError Main#4','er',e);
 					reject(e);
 				}
 
@@ -226,15 +221,13 @@ export class Main {
 
 				}).catch(function(e){
 					//console.log(clc.red('\nError Main#3'));
-					L('\nError Main#3','er');
-					L(e);
+					L('\nError Main#3','er',e);
 					reject(e);
 				});
 
 			}).catch(function(e){
 				//console.log(clc.red('\nError Main#8'));
-				L('\nError Main#8','er');
-				L(e);
+				L('\nError Main#8','er',e);
 				reject(e);
 			});
 
@@ -300,16 +293,14 @@ export class Main {
 
 				}).catch(function(e){
 
-					console.log(clc.red('\nError Main#1'));
-					console.log(e);
+					L('\nError Main#1','er',e);
 					reject(e);
 
 				});
 
 			}).catch(function(e){
 
-				L('\nError Main#2','er');
-				L(e);
+				L('\nError Main#2','er',e);
 				reject(e);
 
 			});
@@ -328,5 +319,3 @@ export class Main {
 	}
 
 }
-
-L('//after main\n');

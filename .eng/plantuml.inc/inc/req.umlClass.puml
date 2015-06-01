@@ -1,0 +1,54 @@
+@startuml
+
+!definelong req(x) class x
+class x <<(R,DarkSeaGreen)requirement>> {
+}
+!enddefinelong
+
+!definelong req(x,k) class x
+class x <<(R,DarkSeaGreen)requirement>> {
+	+kind: k
+}
+!enddefinelong
+
+!definelong req(x,k,m) class x
+class x <<(R,DarkSeaGreen)requirement>> {
+	+kind: k
+	+verifyMethod: m
+}
+!enddefinelong
+
+!definelong test(x) class x
+class x <<(T,MediumSeaGreen)testCase>> {
+}
+!enddefinelong
+
+!definelong app(x) class x
+class x <<(A,LightGreen)application>>{
+}
+!enddefinelong
+
+!definelong non(x) class x
+class x <<(N,DarkSeaGreen)nonformal>> {
+}
+!enddefinelong
+
+skinparam class {
+
+	BackgroundColor<<testCase>> Beige
+	BorderColor<<testCase>> DimGray
+
+	BackgroundColor<<requirement>> #c0d9c1
+	BorderColor<<requirement>> DarkSlateGray
+
+	BackgroundColor<<application>> LimeGreen
+  BorderColor<<application>> DarkSlateGray
+
+  BackgroundColor<<nonformal>> AliceBlue
+  BorderColor<<nonformal>> DarkSlateGray
+
+	ArrowColor DarkSlateGray
+
+}
+
+@enduml

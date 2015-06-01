@@ -1,0 +1,7 @@
+@startuml
+
+!include themes/black.puml
+!include inc/header.puml
+!include inc/footer.puml
+
+@enduml

@@ -1,0 +1,73 @@
+@startuml
+
+skinparam {
+	backgroundColor #3C3F41
+	shadowing false
+
+	titleFontColor WhiteSmoke
+
+	classArrowColor LightSlateGray
+	classBorderColor LightSlateGray
+	classBackgroundColor WhiteSmoke
+	stereotypeCBackgroundColor GhostWhite
+	classFontStyle bold
+
+	componentStyle uml2
+
+	frameBorderColor Grey
+  frameFontColor LightGrey
+  packageBorderColor Grey
+  packageFontColor LightGrey
+  folderBorderColor Grey
+  folderFontColor LightGrey
+  cloudBorderColor Grey
+  cloudFontColor LightGrey
+  nodeBorderColor Grey
+  nodeFontColor LightGrey
+
+	componentBackgroundColor #3C3F41
+	componentBorderColor LightGrey
+  componentArrowColor LightGrey
+  componentArrowFontColor LightGrey
+  componentFontColor Snow
+
+  interfaceBackgroundColor #3C3F41
+  interfaceBorderColor LightGrey
+  interfaceFontColor Snow
+
+	stateBackgroundColor #3C3F41
+  stateBorderColor LightGrey
+  stateArrowColor LightGrey
+
+  stateStartColor WhiteSmoke
+  stateEndColor WhiteSmoke
+
+  stateFontColor Snow
+  stateArrowFontColor LightGrey
+  stateAttributeFontColor Snow
+
+  stateBorderColor<<Leave>> DarkRed
+  stateFontColor<<Leave>> DarkRed
+
+  stateBorderColor<<Source>> CornflowerBlue
+  stateArrowColor<<Source>> CornflowerBlue
+  stateFontColor<<Source>> CornflowerBlue
+
+  stateBorderColor<<Ok>> LimeGreen
+  stateFontColor<<Ok>> LimeGreen
+
+  activityBackgroundColor #3C3F41
+  activityBorderColor LightGrey
+  activityArrowColor LightGrey
+  activityBarColor LightGrey
+
+  activityStartColor WhiteSmoke
+  activityEndColor WhiteSmoke
+
+  activityFontColor Snow
+  activityArrowFontColor LightGrey
+
+}
+
+@enduml
+

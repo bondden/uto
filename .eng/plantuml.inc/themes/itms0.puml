@@ -1,0 +1,11 @@
+@startuml
+
+skinparam state {
+  'BorderColor Grey
+  BackgroundColor<<Fail>> Red
+  FontColor<<Fail>> White
+  BackgroundColor<<Success>> Green
+  FontColor<<Success>> White
+}
+
+@enduml

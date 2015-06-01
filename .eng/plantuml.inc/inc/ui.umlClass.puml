@@ -1,0 +1,28 @@
+@startuml
+
+!definelong i(n)
+frame n {
+}
+!enddefinelong
+
+!definelong i(n,y)
+frame n as y {
+}
+!enddefinelong
+
+skinparam {
+	backgroundColor #3C3F41
+	shadowing false
+
+	frameBorderColor Grey
+	frameFontColor LightGrey
+
+	classArrowColor Grey
+}
+/'
+i("a",i)
+i("b",e)
+i("c")
+i -- e
+'/
+@enduml

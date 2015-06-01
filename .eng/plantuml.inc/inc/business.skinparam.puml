@@ -1,0 +1,74 @@
+@startuml
+
+skinparam usecase {
+
+	ArrowColor DimGray
+
+	BackgroundColor White
+  BorderColor #666666
+  FontColor Navy
+
+}
+
+skinparam actor {
+
+	BackgroundColor<< Nominant >> White 'HoneyDew
+  BorderColor<< Nominant >> DarkBlue
+  'FontColor<< Nominant >> DarkBlue
+
+  BackgroundColor<< Role >> White
+  BorderColor<< Role >> #666666
+
+  BackgroundColor White
+  BorderColor DimGray
+  'FontColor Black
+
+  StereotypeFontColor SlateGrey
+
+}
+
+skinparam note {
+
+	BackgroundColor Ivory
+  BorderColor DimGray
+  'FontColor SaddleBrown
+
+}
+
+':Board of Founders: as b1 << Role >>
+':Board of Founders: as b2 << Nominant >>
+':Board of Founders: as b3
+'
+'usecase TestUC as "
+'	Test Use Case
+'	===
+'	dd
+'	....
+'	sdsd
+'	___
+'	sdsd
+'	---
+'	sdd
+'"
+'
+'note right
+'
+'	The Angular 2 quickstart includes all of the dependencies
+'	for writing Angular 2 in your browser.
+'
+'	The quickstart contains:
+'
+'  * * Pre-built ES5 version of Angular 2 alpha-14
+'  * * Pre-built ES5 version of rtts-assert alpha-7
+'  * * The es6-shim, which includes
+'
+'  Traceur, ES6 Module Loader, System, Zone,
+'  and Traceur options for meta-data annotations.
+'
+'end note
+'
+'b1 - TestUC
+'b2 -- TestUC
+'b3 -u- TestUC
+
+@enduml

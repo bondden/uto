@@ -6,7 +6,7 @@
 var
 	express = require('express'),
 	path = require('path'),
-  clc = require('cli-color')
+	clc = require('cli-color')
 ;
 
 let singleton = Symbol();
@@ -48,7 +48,7 @@ export class Server{
 			res.send('Hello World');
 		});
 
-		this.x.listen(80);
+		this.x.listen(cnf.web.port);
 	}
 
 }

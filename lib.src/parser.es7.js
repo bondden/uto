@@ -32,12 +32,11 @@ export class Parser{
 		return new Promise(function (resolve,reject){
 			try{
 				if(!fs.existsSync(srcFile)){
-					reject(new Error('File does not exist.'));
+					reject(new Error('Parser #5: File does not exist.'));
 				}
 				fs.readFile(srcFile, function(e,d){
 					if(e){
-						L('Error #2','er');
-						L(e);
+						L('Parser #2','er',e);
 						reject(e);
 					}
 
@@ -65,8 +64,7 @@ export class Parser{
 		try{
 			content=(content+'').replace(/^\s*'(.*)$/mgi,'');
 		}catch(e){
-			L('Error #1','er');
-			L(e);
+			L('Parser #1','er',e);
 			throw e;
 		}
 
@@ -246,13 +244,13 @@ export class Parser{
 				holder.parsedData=holder.parseLoadedSource(d);
 
 				if(!holder.parsedData){
-					reject(new Error('Error parsing file '+pumlFile));
+					reject(new Error('Parser #3: Error parsing file '+pumlFile));
 				}else{
 					resolve(holder.parsedData);
 				}
 
 			}).catch(function(e){
-				reject(new Error('Error loading file '+pumlFile));
+				reject(new Error('Parser #4: Error loading file '+pumlFile));
 			});
 
 

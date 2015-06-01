@@ -1,0 +1,75 @@
+@startuml
+
+!include plantuml.inc/scf.puml
+
+skinparam {
+	defaultFontColor Snow
+	activityBorderColor SlateBlue
+	activityArrowColor Gainsboro
+}
+
+!definelong er(x)
+	#DarkRed:Error: x;
+!enddefinelong
+
+!definelong insertClass
+	#SlateBlue:Insert Class;
+	if(result) then (success)
+	else (error)
+		er(No class inserted)
+		stop
+	endif
+!enddefinelong
+
+title Importer Activity
+
+start
+
+:Check input **data**;
+if(data correct?) then (yes)
+
+	if(drop classes before?) then (yes)
+		:Drop classes of **data**;
+	else (no)
+	endif
+
+	while(class in **data**.classes)
+		:Check class existence;
+		if(class exists?) then (yes)
+		else (no)
+
+			if(has parent?) then (yes)
+
+				:Check parent existence;
+				if(exists?) then (yes)
+					insertClass
+				else (no)
+					if(class data exists?) then (yes)
+						partition "Insert parent class\nrecursively" {
+							insertClass
+						}
+						insertClass
+					else (no)
+					endif
+				endif
+
+			else (no)
+
+				insertClass
+
+			endif
+
+			:Add class properties;
+
+		endif
+
+	endwhile
+
+else (no)
+	er(Incorrect data)
+	stop
+endif
+
+stop
+
+@enduml

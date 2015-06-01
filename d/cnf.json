@@ -12,7 +12,8 @@
 			"storage":"plocal",
 			"username":"admin",
 			"password":"admin"
-		}
+		},
+		"dropClassesBeforeImport":true
 	},
 	"timeout":30000,
 	"path":{
@@ -43,7 +44,8 @@
 		"assets":"${path.webDir}a/",
 		"imageUrlPrefix":"/d/r/",
 		"codeUrlPrefix":"/d/u/",
-		"importUrlPrefix":"/d/c/"
+		"importUrlPrefix":"/d/c/",
+		"port":18204
 	},
 	"modules":{
 		"server":{},
