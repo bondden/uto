@@ -237,7 +237,7 @@ describe('UTO Suit',function(){
 
 			it('It should throw an Error on non-existent file',function(done){
 				try{
-					app.importPuml('abc').then(function(d){
+					app.importPuml('non_existent_file').then(function(d){
 						expect(false).to.be.true;
 						done();
 					}).catch(function(e){
@@ -288,9 +288,9 @@ describe('UTO Suit',function(){
 
 			it('Express Server should listen port 80',function(done){
 
-				console.log('openinig http://localhost:80...');
+				console.log('opening http://localhost:80...');
 
-				var page = require('webpage').create();
+				var page = require('phantom').create();
 
 				page.open('http://localhost:80', function(s){
 					console.log(s);

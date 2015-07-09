@@ -11,7 +11,9 @@ import * as UtilLib from '../lib/util'
 
 var
 	fs=require('fs'),
-	L	= UtilLib.Util.log
+	L	= UtilLib.Util.log,
+	clc=require('cli-color'),
+	___=console.log
 ;
 
 export class Importer {
@@ -19,30 +21,36 @@ export class Importer {
 	constructor(db,cnf){
 		this.db=db;
 		this.cnf=cnf;
+		this.data={};
+		this.classInsertAttempts=[];
 	}
 
 	insertClassProperty(className,propData){
 
-		//console.log(clc.yellow('\t\t\t\tat insertClassProperty of '+className)+'{'+clc.whiteBright(propData.name+':'+propData.type)+'}');
+		___(clc.yellow('\t\t\t<insertClassProperty_ofClass_'+className)+'{'+clc.whiteBright(propData.name+':'+propData.type)+'}>');
 
 		var holder=this;
 		//var holder=this;
 		return new Promise(function(resolve,reject){
 
+			resolve(true);
+
 			let q=`create property ${className}.${propData.name} ${propData.type}`;
-			//console.log(q);
+			___(q);
 
 			holder.db.exec(q).then(function(r){
 
-				//console.log(clc.greenBright('\tprop created '+className+'.'+propData.name+' with '+r.results.length+' results'));
-				//console.log(r);
-				//console.log('\n');
+				___(clc.greenBright('\t<!-- prop created '+className+'.'+propData.name+' with '+r.results.length+' results')+' -->');
+				___(r);
+				___('\n');
+
+				___(clc.yellow('\t\t\t</insertClassProperty_ofClass_'+className)+'{'+clc.whiteBright(propData.name+':'+propData.type)+'}>');
 
 				resolve(r);
 
 			}).catch(function(e){
 
-				L('Error #3','er');
+				L('Error Importer#3','er');
 				L(e);
 				L('query: '+q);
 
@@ -54,6 +62,7 @@ export class Importer {
 					'['+t+'] '+__filename+': Error#3; query: "'+q+'"; raw: '+JSON.stringify(e)+'\n'
 				);
 
+				___(clc.yellow('\t\t\t</insertClassProperty_ofClass_'+className)+'{'+clc.whiteBright(propData.name+':'+propData.type)+'}>');
 				reject(e);
 
 			});
@@ -63,22 +72,25 @@ export class Importer {
 
 	classExists(className){
 
-		//console.log(clc.white('\t\t\t\tat classExists ')+clc.whiteBright(className));
+		___(clc.white('\t<classExists_')+clc.whiteBright(className)+'>');
 
 		var holder=this;
 
 		return new Promise(function(resolve,reject){
 
-			//console.log(clc.white('\t\t\t\tat classExists.Promise of ')+clc.whiteBright(className));
+			___(clc.white('\t\t<classExistsPromiseOf_')+clc.whiteBright(className)+'>');
 
 			holder.db.class.get(className).then(function(classPtr){
 
-				//console.log(clc.white('\nclassExists.exists '+className));
+				___(clc.white('\n<!-- classExists.exists '+className)+' -->');
 
+				___(clc.white('\t\t</classExistsPromiseOf_')+clc.whiteBright(className)+'>');
+				___(clc.white('\t</classExists_')+clc.whiteBright(className)+'>');
 				resolve(classPtr);
 
 			}).catch(function(e){
-
+				___(clc.white('\t\t</classExistsPromiseOf_')+clc.whiteBright(className)+'>');
+				___(clc.white('\t</classExists_')+clc.whiteBright(className)+'>');
 				resolve(false);
 
 			});
@@ -89,13 +101,34 @@ export class Importer {
 
 	insertClassCheckless(classData){
 
-		//console.log('\n\t\t\t\tat insertClassCheckless '+clc.whiteBright.bold(classData.name));
+		___('\n\t<insertClassCheckless_'+clc.whiteBright.bold(classData.name)+'>');
 
 		var holder=this;
 
 		return new Promise(function(resolve,reject){
 
-			//console.log('\n\t\t\t\tat insertClassCheckless Promise of '+clc.whiteBright.bold(classData.name));
+			___('\n\t\t<insertClassChecklessPromiseOf_'+clc.whiteBright.bold(classData.name)+'>');
+
+
+			//do not repeat attempts
+
+			___('<!--');
+			___(holder.classInsertAttempts);
+			___('-->');
+
+
+			let tried=holder.classInsertAttempts.find(function(el,i,a){
+				___(clc.redBright(`<!-- ${el} <-> ${classData.name} -->`));
+				return el===classData.name;
+			});
+			if(tried){
+				___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+				___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
+				resolve(classData);
+				return;
+			}
+			holder.classInsertAttempts.push(classData.name);
+			//
 
 			let c={
 				"name"     :classData.name,
@@ -110,12 +143,12 @@ export class Importer {
 			}
 			let q=`create class ${c.name}${c.extends}${c.abstract}`;
 
-			//console.log(clc.whiteBright('\nq: '+q));
+			___(clc.whiteBright('\nq: '+q));
 
 			holder.db.exec(q).then(function(r){
 
-				//console.log(clc.green('\ncreated class '+classData.name));
-				//console.log(r);
+				___(clc.green('\n<!-- created class '+classData.name)+' -->');
+				___(r);
 
 				//holder.db.class.get(classData.name).then(function(recentClass){
 
@@ -131,94 +164,101 @@ export class Importer {
 
 				Promise.all(promises).then(function(r){
 
-					//console.log(clc.magentaBright('props '+classData.name));
+					___('<!-- '+clc.magentaBright('props '+classData.name)+' -->');
+					___('\n\t\t</insertClassChecklessPromiseOf_'+clc.whiteBright.bold(classData.name)+'>');
+					___('\n\t</insertClassCheckless_'+clc.whiteBright.bold(classData.name)+'>');
 					resolve(r);
 
 				}).catch(function(e){
 
-					L('Error #4','er');
+					L('Error Importer#4','er');
 					L(e);
 					L('props of '+classData.name);
 					L();
+					___('\n\t\t</insertClassChecklessPromiseOf_'+clc.whiteBright.bold(classData.name)+'>');
+					___('\n\t</insertClassCheckless_'+clc.whiteBright.bold(classData.name)+'>');
 					reject(e);
 
 				});
 
-				/*}).catch(function(e){
-
-					console.log(clc.red('Error #12'));
-					console.log(e);
-					reject(e);
-
-				});*/
-
 			}).catch(function(e){
 
-				L('Error #5','er');
+				L('Error Importer#5','er');
 				L(e);
+				___('\n\t\t</insertClassChecklessPromiseOf_'+clc.whiteBright.bold(classData.name)+'>');
+				___('\n\t</insertClassCheckless_'+clc.whiteBright.bold(classData.name)+'>');
 				reject(e);
 
 			});
 
-			//console.log('\n');
+			___('\n');
 
 		});
 	}
 
 	insertClass(classData){
 
-		//console.log(clc.white('\n\t\tat insertClass ')+clc.whiteBright.bold(classData.name));
+		___(clc.white('<insertClass_')+clc.whiteBright.bold(classData.name)+'>');
 
 		var holder=this;
 
 		return new Promise(function(resolve,reject){
 
-			//console.log(clc.white('\t\t\t\tat Promise of ')+clc.whiteBright(classData.name));
+			___(clc.white('\t<PromiseOf_')+clc.whiteBright(classData.name)+'>');
 
 			holder.classExists(classData.name).then(function(r){
 
-				//console.log(`\nclass ${classData.name} exists: `+clc.cyan(r));
+				___(`\n<!-- class ${classData.name} exists: `+clc.cyan(r)+' -->');
 
 				if(r){
 
-					//console.log(clc.magentaBright('exists ')+classData.name);
-
+					___('<!-- '+clc.magentaBright('exists ')+classData.name+'-->');
+					___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+					___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 					resolve(r);
 
 				}else{
 
-					//console.log(clc.magentaBright('absent ')+classData.name);
+					___('<!-- '+clc.magentaBright('absent ')+classData.name+' -->');
 
 					if(classData.hasOwnProperty('superClass')&&classData.superClass){
 
-						//console.log(clc.blue('\nclass ')+classData.name+clc.blueBright('.hasSuper')+'('+classData.superClass+')');
+						___('\n<!-- '+clc.blue('class ')+classData.name+clc.blueBright('.hasSuper')+'('+classData.superClass+') -->');
 
-						let sClass=classData.find(function(el,i,a){
-							return el.name==classData.superClass;
+						let sClass=holder.data.classes.find(function(el,i,a){
+							return el.name===classData.superClass;
 						});
+
+						___('<!-- '+clc.blueBright('sClass: ')+(sClass?sClass.name:'No')+' -->');
 
 						if(sClass){
 							holder.insertClass(sClass).then(function(r){
 
-								//console.log(clc.green('inserted parent '+r));
+								___('<!-- '+clc.green('inserted parent '+r)+' -->');
 
 								holder.insertClassCheckless(classData).then(function(r1){
 
-									//console.log(clc.green('inserted with parent '+r1));
+									___('<!-- '+clc.green('inserted with parent '+r1)+' -->');
+									___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+									___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 									resolve(r1);
 
 								}).catch(function(e){
 
-									L('Error #12','er');
+									L('Error Importer#12','er');
 									L(e);
+									___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+									___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 									reject(e);
 
 								});
 
 							}).catch(function(e){
 
-								L('Error #10','er');
+								L('Error Importer#10','er');
 								L(e);
+								___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+								___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 								reject(e);
 
 							});
@@ -226,17 +266,21 @@ export class Importer {
 
 					}else{
 
-						//console.log(clc.blue('\nclass ')+classData.name+clc.blueBright('.hasSuper')+'('+clc.red('false')+')');
+						___(clc.blue('\nclass ')+classData.name+clc.blueBright('.hasSuper')+'('+clc.red('false')+')');
 
 						holder.insertClassCheckless(classData).then(function(r){
 
-							//console.log(clc.green('inserted parentless '+r));
+							___('<!-- '+clc.green('inserted parentless '+r)+' -->');
+							___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+							___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 							resolve(r);
 
 						}).catch(function(e){
 
-							L('Error #11','er');
+							L('Error Importer#11','er');
 							L(e);
+							___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+							___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 							reject(e);
 
 						});
@@ -245,15 +289,17 @@ export class Importer {
 
 				}
 
-			})/*.catch(function(e){
-				if(e){
-					console.log('\nclassExists.catch:');
-					console.log(clc.red(e));
-					console.log('\n');
-				}
-			})*/;
+			}).catch(function(e){
+				L('Error Importer#30','er');
+				L(e);
+				___(clc.white('\t</PromiseOf_')+clc.whiteBright(classData.name)+'>');
+				___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
+				reject(e);
+			});
 
 		});
+
+		//___(clc.white('</insertClass_')+clc.whiteBright.bold(classData.name)+'>\n');
 
 	}
 
@@ -266,6 +312,8 @@ export class Importer {
 	importParsedData(data){
 
 		var holder=this;
+		holder.data=data;
+		holder.classInsertAttempts=[];
 
 		return new Promise(function(resolve,reject){
 
@@ -287,12 +335,12 @@ export class Importer {
 
 				Promise.all(promises).then(function(r){
 
-					console.log('all classes resolved'.green);
+					___('all classes resolved'.green);
 					resolve(r);
 
 				}).catch(function(e){
 
-					L('Error #6','er');
+					L('Error Importer#6','er');
 					L(e);
 					reject(new Error('Error in database communication #1'));
 
@@ -300,7 +348,7 @@ export class Importer {
 
 			}catch(e){
 
-				L('Error #7','er');
+				L('Error Importer#7','er');
 				L(e);
 				reject(new Error('Error in database communication #2'));
 

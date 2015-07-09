@@ -3,10 +3,12 @@
  */
 'use strict';
 
+import * as UtilLib from '../lib/util'
+
 var
 	express = require('express'),
 	path = require('path'),
-  clc = require('cli-color')
+	L	= UtilLib.Util.log
 ;
 
 let singleton = Symbol();
@@ -19,7 +21,7 @@ export class Server{
 		if(enforcer != singletonEnforcer){
 			throw "Cannot construct Server singleton";
 		}else{
-			console.log('Server initialized');
+			L('Server initialized');
 		}
 
 	}
@@ -33,7 +35,7 @@ export class Server{
 
 	run(cnf){
 
-		console.log(clc.whiteBright('//at Server.run'));
+		L('//at Server.run');
 
 		this.cnf=cnf;
 		this.x=express();
