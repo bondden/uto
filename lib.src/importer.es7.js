@@ -42,114 +42,12 @@ var
 	}
 ;
 
+//todo: transaction style
 export class Importer {
 
 	constructor(db,cnf){
 		this.db=db;
 		this.cnf=cnf;
-	}
-
-	bubbleSort(arr,parent='superClass',name='name'){
-
-		let a=JSON.parse(JSON.stringify(arr));
-		return new Promise(function(rs,rj){
-			let swapped;
-			do{
-				swapped=false;
-				for(let i=0,l=a.length-1;i<l;i++){
-					if(a[i][parent]===a[i+1][name]){
-						let temp=JSON.parse(JSON.stringify(a[i]));
-						a[i]=JSON.parse(JSON.stringify(a[i+1]));
-						a[i+1]=temp;
-						swapped=true;
-					}
-				}
-			}while(swapped);
-			rs(a);
-		});
-
-	}
-
-	dftSort(arr,parent='superClass',name='name'){
-
-		let a0=JSON.parse(JSON.stringify(arr));
-		return new Promise(function(rs,rj){
-
-			let a1=a0.sort(function(a,b){
-				___(`${a[name]}→${a[parent]}  ↔  ${b[name]}→${b[parent]}`);
-				if(a[parent]===b[name]){___(' a↓b↑');return 1;}
-				if(b[parent]===a[name]){___(' a↑b↓');return -1;}
-				return 0;
-			});
-
-			rs(a1);
-		});
-
-	}
-
-	inheritanceSort(arr,parent='superClass',name='name'){
-
-		let a=JSON.parse(JSON.stringify(arr));
-		return new Promise(function(rs,rj){
-
-			let b=[];
-			for(let j=0,l=a.length;j<l;j++){
-
-				let top=a[j];
-				for(let i=j,l=a.length;i<l;i++){
-					___(`${a[name]}→${a[parent]}  ↔  ${a[i][name]}→${a[i][parent]}`);
-					if(top[parent]===a[i][name]){
-						___(' a↓b↑');
-						top=JSON.parse(JSON.stringify(a[i]));
-					}
-				}
-				if(!b.find(function(el,k,a){
-					return el.name===top.name;
-				})){
-					b.push(top);
-				}
-
-			}
-
-			for(let j=0,l=a.length;j<l;j++){
-				if(!b.find(function(el){
-						return el.name===a[j].name;
-				})){
-					b.push(a[j]);
-				}
-			}
-
-
-			//let a1=b.sort(function(x,y){
-			//	___(`${x[name]}→${x[parent]}  ↔  ${y[name]}→${y[parent]}`);
-			//	if(x[parent]===y[name]){___(' a↓b↑');return 1;}
-			//	if(y[parent]===x[name]){___(' a↑b↓');return -1;}
-			//	return 0;
-			//});
-
-			rs(a1);
-		});
-
-	}
-
-	cycledSort(arr,parent='superClass',name='name'){
-
-		let a0=JSON.parse(JSON.stringify(arr));
-		return new Promise(function(rs,rj){
-
-			for(let i=0,l=a0.length;i<l;i++){
-				a0=a0.sort(function(a,b){
-					___(`${a[name]}→${a[parent]}  ↔  ${b[name]}→${b[parent]}`);
-					if(a[parent]===b[name]){___(' a↓b↑');return 1;}
-					if(b[parent]===a[name]){___(' a↑b↓');return -1;}
-					return 0;
-				});
-			}
-
-			rs(a0);
-
-		});
-
 	}
 
 	generalizationSort(arr,parent='superClass',name='name'){
@@ -190,15 +88,12 @@ export class Importer {
 			}
 
 			let tops=a.sort(function(x,y){
-				//___(`${a[name]}→${a[parent]}  ↔  ${b[name]}→${b[parent]}`);
-				//if(a[parent]===b[name]){___(' a↓b↑');return 1;}
-				//if(b[parent]===a[name]){___(' a↑b↓');return -1;}
-				//return 0;
 				return x.level-y.level;
 			}).map(function(o){
 				return {
 					[name]:o[name],
-					[parent]:o[parent]
+					[parent]:o[parent],
+					"l":o.level
 				};
 			});
 
@@ -255,16 +150,12 @@ export class Importer {
 
 			holder.db.class.list().then(function(existentClasses){
 
-				existentClasses.forEach(function(v,k){
-					existentClasses[k]={
+				existentClasses=existentClasses.map(function(v){
+					return {
 						"name":v.name,
 						"superClass":v.superClass
 					};
 				});
-
-				___(clc.magenta('\nexistentClasses'));
-				___(existentClasses);
-				___('\n');
 
 				existentClasses.forEach(function(c){
 					let isSys=holder.cnf.modules.importer.systemClasses.find(function(el,i,a){
@@ -274,40 +165,17 @@ export class Importer {
 					ce.push(c);
 				});
 
-				___(clc.magenta('\nbefore sort'));
-				___(ce);
-				___('\n');
-
-				//sort classes to set superClass to the top
-				//for(let i=0,l=ce.length;i<l;i++){
-				//	//___('super 0: '+ce[i].name+' extends '+ce[i].superClass);
-				//	if(!ce[i].superClass)continue;
-				//	//___('super 1: '+ce[i].name+' extends '+ce[i].superClass);
-				//	for(let j=0;j<l;j++){
-				//		if(ce[j].name===ce[i].superClass && j>i){
-				//			let t=JSON.parse(JSON.stringify(ce[j]));
-				//			ce[j]=JSON.parse(JSON.stringify(ce[i]));
-				//			ce[i]=t;
-				//			break;
-				//		}
-				//	}
-				//}
-
-				//let ce1=ce.sort(function(a,b){
-				//	___(`${a.name}→${a.superClass}  ↔  ${b.name}→${b.superClass}`);
-				//	if(a.superClass===b.name){___(' a↓b↑');return 1;}
-				//	if(b.superClass===a.name){___(' a↑b↓');return -1;}
-				//	return 0;
-				//});
-				//
+				//___(clc.magenta('\nbefore sort'));
+				//___(ce);
+				//___('\n');
 
 				holder.generalizationSort(ce).catch(function(e){
 					E(11,'sorting',e,rj);
 				}).then(function(a){
 
-					___(clc.magenta('\nafter sort'));
-					___(a);
-					___('\n');
+					//___(clc.magenta('\nafter sort'));
+					//___(a);
+					//___('\n');
 
 					for(let i=a.length-1;i>=0;i--){
 						let nm=a[i].name;
@@ -315,7 +183,7 @@ export class Importer {
 						q+=`drop class ${nm}\n`;
 					}
 
-					L(clc.yellow('q:\n'+q)+'\n');
+					//L(clc.yellow('q:\n'+q)+'\n');
 
 					rs(q);
 
@@ -382,47 +250,6 @@ export class Importer {
 
 	}
 
-	runQuerySync(q){
-		var holder=this;
-
-		return new Promise(function(rs,rj) {
-
-			let cycle=async function(qs){
-				var r = null;
-				try{
-					for(let i=0,l=qs.length;i<l;i++){
-
-						t=setInterval(function(){
-							process.stdout.write(clc.blueBright('.'));
-						},25);
-
-						r = await holder.db.exec(qs[i]);
-
-						clearInterval(t);
-
-					}
-				}catch(e){
-					E(6,'Query error',e);
-				}
-				return r;
-			};
-
-			let qs = q.trim().split('\n');
-
-			cycle(qs).catch(function(e){
-
-				E(4,'Query error',e,rj);
-
-			}).then(function(r){
-
-				rs(`${qs.length} records have been inserted`);
-
-			});
-
-		});
-
-	}
-
 	runQuery(q){
 		var holder=this;
 		return new Promise(function(rs,rj){
@@ -442,7 +269,7 @@ export class Importer {
 	/**
 	 *
 	 * @param data  : parsedData format
-	 * @param connConfig : (cnf.json).orient format
+	 * connConfig : (cnf.json).orient format
 	 * @returns {Promise}
 	 */
 	importParsedData(data){

@@ -378,18 +378,21 @@ export class Compiler{
 
 		//console.log('//at validateJson');
 
+		//noinspection ES6Validation
 		let proc=async function(){
 
 			let validator=require('is-my-json-valid');
 
+			//noinspection ES6Validation
 			let schemaRaw=await fs.readFileSync(schemaFileName);
 
-			//cinsole.log('\nvalidateJson.schemaRaw:\n'.cyan+`${schemaRaw}`+'\n');
+			//console.log('\nvalidateJson.schemaRaw:\n'.cyan+`${schemaRaw}`+'\n');
 
 			let schema   =JSON.parse(schemaRaw);
 
 			//console.log('1. schema parsed'.cyan);
 
+			//noinspection ES6Validation
 			let jRaw=await fs.readFileSync(fileName);
 			let json=JSON.parse(jRaw);
 
