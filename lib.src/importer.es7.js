@@ -167,13 +167,13 @@ export class Importer {
 		var holder=this;
 		return new Promise(function(rs,rj){
 
-			holder.db.exec(q).then(function(r){
+			holder.db.exec(q,{class: "s"}).then(function(r){
 
 				rs(r);
 
 			}).catch(function(e){
 
-				E(3,'Query execution',e);
+				E(3,'Query execution',e,rj);
 
 			});
 
@@ -215,7 +215,7 @@ export class Importer {
 						rj(new Error('Error Importer#5: Timeout '+holder.cnf.timeout+' ms exceeded'));
 					},holder.cnf.timeout);
 				}),
-				holder.runQuerySync(q)
+				holder.runQuery(q)
 			];
 
 			Promise.race(promises).then(function(r){
