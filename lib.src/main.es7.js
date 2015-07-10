@@ -25,7 +25,7 @@ var
 	path     =require('path'),
 	traverse =require('traverse'),
 	templater=require('json-templater/string'),
-	odb       =require('oriento'),
+	odb       =require('orientjs'),
 	L	= UtilLib.Util.log
 ;
 

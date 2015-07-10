@@ -60,11 +60,6 @@ function importIt(d){
 	});
 }
 
-function ph(d){
-	console.log('init');
-	console.log(d);
-}
-
 var app=new Main();
 app.initialized.then(function(r){
 	importIt(r);
