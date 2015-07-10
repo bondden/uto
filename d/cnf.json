@@ -60,7 +60,20 @@
 					"description":"Precious by-class handling, saving data"
 				}
 			],
-			"method":"rewrite"
+			"method":"rewrite",
+			"systemClasses":[
+				"E",
+				"OFunction",
+				"OIdentity",
+				"ORIDs",
+				"ORestricted",
+				"ORole",
+				"OSchedule",
+				"OTriggered",
+				"OUser",
+				"V",
+				"_studio"
+			]
 		},
 		"exporter":{},
 		"compiler":{},

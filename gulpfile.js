@@ -10,6 +10,7 @@ var gulp   =require('gulp'),
     srcmaps=require('gulp-sourcemaps'),
     babel  =require('gulp-babel'),
     mocha  =require('gulp-mocha'),
+		plumber=require('gulp-plumber'),
     path   =require('path')
 ;
 var d      ={
@@ -25,6 +26,7 @@ var d      ={
 
 gulp.task('js',function(){
 	return gulp.src(d.js.src)
+		.pipe(plumber())
 		.pipe(changed(d.js.dst))
 		.pipe(srcmaps.init())
 		.pipe(babel({stage:0}))
