@@ -75,7 +75,7 @@ export class Importer {
 			c.abstract=' ABSTRACT';
 		}
 
-		cd.queryString=`create class ${c.name}${c.extends}${c.abstract}\n`;
+		cd.queryString+=`create class ${c.name}${c.extends}${c.abstract}\n`;
 
 		classData.properties.forEach(function(p){
 			cd.queryString+=`create property ${c.name}.${p.name} ${p.type}\n`;
@@ -112,6 +112,12 @@ export class Importer {
 			}
 		}
 		//
+
+		for(let i=classes.length-1;i>=0;i--){
+			let nm=classes[i].name;
+			q+=`truncate class ${nm} UNSAFE\n`;
+			q+=`drop class ${nm}\n`;
+		}
 
 		classes.forEach(function(c,i){
 			q+=c.queryString;
@@ -167,7 +173,7 @@ export class Importer {
 		var holder=this;
 		return new Promise(function(rs,rj){
 
-			holder.db.exec(q,{class: "s"}).then(function(r){
+			holder.db.exec(q,{"class": "s"}).then(function(r){
 
 				rs(r);
 
@@ -192,6 +198,7 @@ export class Importer {
 
 		return new Promise(function(rs,rj){
 
+			//simple input data check
 			if(!data||!data.classes){
 				E(1,
 					'the data for import is incorrect',
@@ -200,15 +207,31 @@ export class Importer {
 				);
 			}
 
+			//compose query
 			try{
-
 				var q=holder.composeQuery(data);
-
 			}catch(e){
 				E(7,'Query composition',e,rj);
 				return e;
 			}
 
+			////choose a method
+			//var runMethod=function(q=''){
+			//	return new Promise(function(rs,rj){
+			//		let msg='No supported import method specified in config';
+			//		E(9,msg,new Error(msg),rj);
+			//	});
+			//};
+			//
+			//switch(holder.cnf.modules.importer.method){
+			//	case 'rewrite':
+			//		//todo: drop all non-system classes
+			//		runMethod=holder.runQuery;
+			//		break;
+			//	default:
+			//}
+
+			//limit execution time
 			let promises=[
 				new Promise(function(rs,rj){
 					setTimeout(function(){
@@ -218,6 +241,7 @@ export class Importer {
 				holder.runQuery(q)
 			];
 
+			//get result
 			Promise.race(promises).then(function(r){
 				if(t)clearInterval(t);
 				rs(r);
