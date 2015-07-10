@@ -38,7 +38,7 @@ export class Util{
 		return s;
 	};
 
-	static log = function(msg='\n',style='ne'){
+	static log = function(msg='\n',style='ne',silent=false){
 
 		//todo: transfer settings to log for a) defining a log file, b) setting logging on/off
 		//if(!settings.log)return;
@@ -81,7 +81,9 @@ export class Util{
 			}
 		);
 
-		console.log(styles[style]('\nuto.log: '+msg));
+		if(!silent){
+			console.log(styles[style]('\nuto.log: '+msg));
+		}
 
 	};
 
