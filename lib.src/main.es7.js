@@ -25,7 +25,7 @@ var
 	path     =require('path'),
 	traverse =require('traverse'),
 	templater=require('json-templater/string'),
-	odb       =require('oriento'),
+	odb       =require('orientjs'),
 	L	= UtilLib.Util.log
 ;
 
@@ -225,14 +225,12 @@ export class Main {
 					resolve(true);
 
 				}).catch(function(e){
-					//console.log(clc.red('\nError Main#3'));
 					L('\nError Main#3','er');
 					L(e);
 					reject(e);
 				});
 
 			}).catch(function(e){
-				//console.log(clc.red('\nError Main#8'));
 				L('\nError Main#8','er');
 				L(e);
 				reject(e);
@@ -286,6 +284,7 @@ export class Main {
 
 		return new Promise(function(resolve,reject){
 
+			L('Parsing '+pumlFile);
 			holder.parser.parse(pumlFile).then(function(d){
 
 				holder.parsedData=d;
@@ -300,8 +299,8 @@ export class Main {
 
 				}).catch(function(e){
 
-					console.log(clc.red('\nError Main#1'));
-					console.log(e);
+					L('\nError Main#1','er');
+					L(e);
 					reject(e);
 
 				});

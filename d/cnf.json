@@ -47,7 +47,21 @@
 	},
 	"modules":{
 		"server":{},
-		"importer":{},
+		"importer":{
+			"methodsSupport":[
+				{
+					"name":"rewrite",
+					"supported":true,
+					"description":"Drops all non-system classes and writes new"
+				},
+				{
+					"name":"byClass",
+					"supported":false,
+					"description":"Precious by-class handling, saving data"
+				}
+			],
+			"method":"rewrite"
+		},
 		"exporter":{},
 		"compiler":{},
 		"parser":{},

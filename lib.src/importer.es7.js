@@ -1,17 +1,44 @@
 /**
  * Created by Denis Bondarenko <bond.den@gmail.com> on 16.05.2015.
  */
-'use strict';
+
 /**
  * Connects to OrientDb server.
  * Creates DB schema or adds classes to existent schema from parsedData.
  */
+'use strict';
 
 import * as UtilLib from '../lib/util'
 
 var
 	fs=require('fs'),
-	L	= UtilLib.Util.log
+	L	= UtilLib.Util.log,
+	clc=require('cli-color'),
+	___=console.log,
+	t=false,
+	E=function(n=0,msg=false,e=false,rj=false,thr=false){
+
+		if(!msg){
+			msg=`: ${msg}\n`;
+		}else{
+			msg='\n';
+		}
+		L(`Error Importer#${n}${msg}`);
+		L(e,'er');
+
+		if(t)clearInterval(t);
+
+		if(e){
+			L(e,'er');
+			if(rj){
+				rj(e);
+			}
+			if(thr){
+				throw e;
+			}
+		}
+
+	}
 ;
 
 export class Importer {
@@ -21,240 +48,142 @@ export class Importer {
 		this.cnf=cnf;
 	}
 
-	insertClassProperty(className,propData){
+	composeClass(classData){
 
-		//console.log(clc.yellow('\t\t\t\tat insertClassProperty of '+className)+'{'+clc.whiteBright(propData.name+':'+propData.type)+'}');
+		if(!classData.hasOwnProperty('name')||!classData.name){
+			throw new Error('Error Importer#6: Incorrect class '+classData);
+		}
 
-		var holder=this;
-		//var holder=this;
-		return new Promise(function(resolve,reject){
+		let cd={
+			"name":classData.name,
+			"parent":false,
+			"queryString":''
+		};
 
-			let q=`create property ${className}.${propData.name} ${propData.type}`;
-			//console.log(q);
+		let c={
+			"name"     :classData.name,
+			"extends"  :'',
+			"abstract" :''
+		};
 
-			holder.db.exec(q).then(function(r){
+		if(classData.hasOwnProperty('superClass')&&classData.superClass){
+			c.extends=' extends '+classData.superClass;
+			cd.parent=classData.superClass;
+		}
 
-				//console.log(clc.greenBright('\tprop created '+className+'.'+propData.name+' with '+r.results.length+' results'));
-				//console.log(r);
-				//console.log('\n');
+		if(classData.hasOwnProperty('abstract')&&classData.abstract){
+			c.abstract=' ABSTRACT';
+		}
 
-				resolve(r);
+		cd.queryString+=`create class ${c.name}${c.extends}${c.abstract}\n`;
 
-			}).catch(function(e){
-
-				L('Error #3','er');
-				L(e);
-				L('query: '+q);
-
-				//todo: normal logging or remove in open version
-				let date=new Date();
-				let t=date.toTimeString();
-				fs.appendFile(
-					holder.cnf.path.logFile,
-					'['+t+'] '+__filename+': Error#3; query: "'+q+'"; raw: '+JSON.stringify(e)+'\n'
-				);
-
-				reject(e);
-
-			});
-
+		classData.properties.forEach(function(p){
+			cd.queryString+=`create property ${c.name}.${p.name} ${p.type}\n`;
 		});
-	}
 
-	classExists(className){
-
-		//console.log(clc.white('\t\t\t\tat classExists ')+clc.whiteBright(className));
-
-		var holder=this;
-
-		return new Promise(function(resolve,reject){
-
-			//console.log(clc.white('\t\t\t\tat classExists.Promise of ')+clc.whiteBright(className));
-
-			holder.db.class.get(className).then(function(classPtr){
-
-				//console.log(clc.white('\nclassExists.exists '+className));
-
-				resolve(classPtr);
-
-			}).catch(function(e){
-
-				resolve(false);
-
-			});
-
-		});
+		return cd;
 
 	}
 
-	insertClassCheckless(classData){
+	composeQuery(data){
 
-		//console.log('\n\t\t\t\tat insertClassCheckless '+clc.whiteBright.bold(classData.name));
+		let q='';
+		if(data.classes.length===0){
+			return q;
+		}
 
 		var holder=this;
 
-		return new Promise(function(resolve,reject){
+		let classes=[];
+		data.classes.forEach(function(c){
+			classes.push(holder.composeClass(c));
+		});
 
-			//console.log('\n\t\t\t\tat insertClassCheckless Promise of '+clc.whiteBright.bold(classData.name));
-
-			let c={
-				"name"     :classData.name,
-				"extends"  :'',
-				"abstract" :''
-			};
-			if(classData.hasOwnProperty('superClass')&&classData.superClass){
-				c.extends=' extends '+classData.superClass;
+		//sort classes to set superClass to the top
+		for(let i=0,l=classes.length;i<l;i++){
+			if(!classes[i].parent)continue;
+			for(let j=0;j<l;j++){
+				if(classes[j].name===classes[i].parent && j>i){
+					let t=JSON.parse(JSON.stringify(classes[j]));
+					classes[j]=JSON.parse(JSON.stringify(classes[i]));
+					classes[i]=t;
+					break;
+				}
 			}
-			if(classData.hasOwnProperty('abstract')&&classData.abstract){
-				c.abstract=' ABSTRACT';
-			}
-			let q=`create class ${c.name}${c.extends}${c.abstract}`;
+		}
+		//
 
-			//console.log(clc.whiteBright('\nq: '+q));
+		for(let i=classes.length-1;i>=0;i--){
+			let nm=classes[i].name;
+			q+=`truncate class ${nm} UNSAFE\n`;
+			q+=`drop class ${nm}\n`;
+		}
 
-			holder.db.exec(q).then(function(r){
-
-				//console.log(clc.green('\ncreated class '+classData.name));
-				//console.log(r);
-
-				//holder.db.class.get(classData.name).then(function(recentClass){
-
-				let promises=[];
-				classData.properties.forEach(function(p){
-					promises.push(holder.insertClassProperty(classData.name,p));
-				});
-				promises.push(new Promise(function(rs,rj){
-					setTimeout(function(){
-						rj(new Error('Timeout '+holder.cnf.timeout+' ms'));
-					},holder.cnf.timeout);
-				}));
-
-				Promise.all(promises).then(function(r){
-
-					//console.log(clc.magentaBright('props '+classData.name));
-					resolve(r);
-
-				}).catch(function(e){
-
-					L('Error #4','er');
-					L(e);
-					L('props of '+classData.name);
-					L();
-					reject(e);
-
-				});
-
-				/*}).catch(function(e){
-
-					console.log(clc.red('Error #12'));
-					console.log(e);
-					reject(e);
-
-				});*/
-
-			}).catch(function(e){
-
-				L('Error #5','er');
-				L(e);
-				reject(e);
-
-			});
-
-			//console.log('\n');
-
+		classes.forEach(function(c,i){
+			q+=c.queryString;
 		});
+
+		return q;
+
 	}
 
-	insertClass(classData){
-
-		//console.log(clc.white('\n\t\tat insertClass ')+clc.whiteBright.bold(classData.name));
-
+	runQuerySync(q){
 		var holder=this;
 
-		return new Promise(function(resolve,reject){
+		return new Promise(function(rs,rj) {
 
-			//console.log(clc.white('\t\t\t\tat Promise of ')+clc.whiteBright(classData.name));
+			let cycle=async function(qs){
+				var r = null;
+				try{
+					for(let i=0,l=qs.length;i<l;i++){
 
-			holder.classExists(classData.name).then(function(r){
+						t=setInterval(function(){
+							process.stdout.write(clc.blueBright('.'));
+						},25);
 
-				//console.log(`\nclass ${classData.name} exists: `+clc.cyan(r));
-
-				if(r){
-
-					//console.log(clc.magentaBright('exists ')+classData.name);
-
-					resolve(r);
-
-				}else{
-
-					//console.log(clc.magentaBright('absent ')+classData.name);
-
-					if(classData.hasOwnProperty('superClass')&&classData.superClass){
-
-						//console.log(clc.blue('\nclass ')+classData.name+clc.blueBright('.hasSuper')+'('+classData.superClass+')');
-
-						let sClass=classData.find(function(el,i,a){
-							return el.name==classData.superClass;
-						});
-
-						if(sClass){
-							holder.insertClass(sClass).then(function(r){
-
-								//console.log(clc.green('inserted parent '+r));
-
-								holder.insertClassCheckless(classData).then(function(r1){
-
-									//console.log(clc.green('inserted with parent '+r1));
-									resolve(r1);
-
-								}).catch(function(e){
-
-									L('Error #12','er');
-									L(e);
-									reject(e);
-
-								});
-
-							}).catch(function(e){
-
-								L('Error #10','er');
-								L(e);
-								reject(e);
-
-							});
-						}
-
-					}else{
-
-						//console.log(clc.blue('\nclass ')+classData.name+clc.blueBright('.hasSuper')+'('+clc.red('false')+')');
-
-						holder.insertClassCheckless(classData).then(function(r){
-
-							//console.log(clc.green('inserted parentless '+r));
-							resolve(r);
-
-						}).catch(function(e){
-
-							L('Error #11','er');
-							L(e);
-							reject(e);
-
-						});
+						//___(clc.yellow(qs[i]));
+						r = await holder.db.exec(qs[i]);
+						//___(clc.magentaBright(JSON.stringify(r)));
+						clearInterval(t);
 
 					}
-
+				}catch(e){
+					E(6,'Query error',e);
 				}
+				return r;
+			};
 
-			})/*.catch(function(e){
-				if(e){
-					console.log('\nclassExists.catch:');
-					console.log(clc.red(e));
-					console.log('\n');
-				}
-			})*/;
+			let qs = q.trim().split('\n');
+
+			cycle(qs).catch(function(e){
+
+				E(4,'Query error',e,rj);
+
+			}).then(function(r){
+
+				rs(`${qs.length} records have been inserted`);
+
+			});
 
 		});
 
+	}
+
+	runQuery(q){
+		var holder=this;
+		return new Promise(function(rs,rj){
+
+			holder.db.exec(q,{"class": "s"}).then(function(r){
+
+				rs(r);
+
+			}).catch(function(e){
+
+				E(3,'Query execution',e,rj);
+
+			});
+
+		});
 	}
 
 	/**
@@ -267,47 +196,60 @@ export class Importer {
 
 		var holder=this;
 
-		return new Promise(function(resolve,reject){
+		return new Promise(function(rs,rj){
 
-			try{
-
-				if(!data||!data.classes){
-					reject(new Error('Error importing data: the data is incorrect.'));
-				}
-
-				let promises=[];
-				data.classes.forEach(function(classData){
-					promises.push(holder.insertClass(classData));
-				});
-				promises.push(new Promise(function(rs,rj){
-					setTimeout(function(){
-						rj(new Error('Timeout '+holder.cnf.timeout+' ms'));
-					},holder.cnf.timeout);
-				}));
-
-				Promise.all(promises).then(function(r){
-
-					console.log('all classes resolved'.green);
-					resolve(r);
-
-				}).catch(function(e){
-
-					L('Error #6','er');
-					L(e);
-					reject(new Error('Error in database communication #1'));
-
-				});
-
-			}catch(e){
-
-				L('Error #7','er');
-				L(e);
-				reject(new Error('Error in database communication #2'));
-
+			//simple input data check
+			if(!data||!data.classes){
+				E(1,
+					'the data for import is incorrect',
+					new Error('Error Importer#1: the data for import is incorrect'),
+					rj
+				);
 			}
 
-		});
+			//compose query
+			try{
+				var q=holder.composeQuery(data);
+			}catch(e){
+				E(7,'Query composition',e,rj);
+				return e;
+			}
 
+			////choose a method
+			//var runMethod=function(q=''){
+			//	return new Promise(function(rs,rj){
+			//		let msg='No supported import method specified in config';
+			//		E(9,msg,new Error(msg),rj);
+			//	});
+			//};
+			//
+			//switch(holder.cnf.modules.importer.method){
+			//	case 'rewrite':
+			//		//todo: drop all non-system classes
+			//		runMethod=holder.runQuery;
+			//		break;
+			//	default:
+			//}
+
+			//limit execution time
+			let promises=[
+				new Promise(function(rs,rj){
+					setTimeout(function(){
+						rj(new Error('Error Importer#5: Timeout '+holder.cnf.timeout+' ms exceeded'));
+					},holder.cnf.timeout);
+				}),
+				holder.runQuery(q)
+			];
+
+			//get result
+			Promise.race(promises).then(function(r){
+				if(t)clearInterval(t);
+				rs(r);
+			}).catch(function(e){
+				E(2,'Database communication',e,rj);
+			});
+
+		});
 	}
 
 }

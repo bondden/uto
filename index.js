@@ -60,13 +60,10 @@ function importIt(d){
 	});
 }
 
-function ph(d){
-	console.log('init');
-	console.log(d);
-}
-
 var app=new Main();
-app.initialized.then(ph).catch(function(e){
+app.initialized.then(function(r){
+	importIt(r);
+}).catch(function(e){
 	console.log(clc.red('Error: Index#2'));
 	console.log(e);
 	throw e;

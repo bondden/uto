@@ -81,10 +81,6 @@ export class Parser{
 				"name":"",
 				"superClass":"",
 				"properties":[
-					{
-						"name":"package",
-						"type":"STRING"
-					}
 				]
 			};
 
@@ -93,7 +89,7 @@ export class Parser{
 				var pkg=tmp.pop();
 				var pkgFind=pkg.match(/^\s*([\w]+)\s*\{\s*$/im);
 				if(pkgFind && pkgFind.length>1){
-					c.properties.package=pkgFind[1];
+					c.package=pkgFind[1];
 				}
 			}
 
