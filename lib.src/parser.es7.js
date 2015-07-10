@@ -231,7 +231,7 @@ export class Parser{
 
 		var holder=this;
 
-		return new Promise(function(resolve,reject){
+		return new Promise(function(rs,rj){
 
 			//console.log('//at Parser.parse Promise');
 
@@ -242,13 +242,13 @@ export class Parser{
 				holder.parsedData=holder.parseLoadedSource(d);
 
 				if(!holder.parsedData){
-					reject(new Error('Error parsing file '+pumlFile));
+					rj(new Error('Error parsing file '+pumlFile));
 				}else{
-					resolve(holder.parsedData);
+					rs(holder.parsedData);
 				}
 
 			}).catch(function(e){
-				reject(new Error('Error loading file '+pumlFile));
+				rj(new Error('Error loading file '+pumlFile));
 			});
 
 

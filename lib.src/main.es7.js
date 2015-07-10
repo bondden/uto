@@ -32,18 +32,18 @@ var
 var cplTpl=function(s,root){
 
 	let c=s.replace(/\$\{([a-z0-9\.]+)}/ig,'{{$1}}');
-	let r=templater(
+
+	return templater(
 		c,
 		root
 	);
-
-	return r;
 
 };
 
 /**
  * Compiles template strings in json object
  * @param b
+ * @param root
  */
 var cplBranch=function(b,root){
 
@@ -61,7 +61,6 @@ export class Main {
 
 		var holder=this;
 
-		this.libDir     ='';
 		this.modules    =[
 			'compiler',
 			'importer',
@@ -214,11 +213,11 @@ export class Main {
 
 		var holder=this;
 
-		return new Promise(function (resolve,reject){
+		return new Promise(function(resolve,reject){
 
-			holder.loadConfig().then(function (d0){
+			holder.loadConfig().then(function(d0){
 
-				holder.initDB().then(function (d){
+				holder.initDB().then(function(d){
 
 					holder.loadModules();
 
@@ -282,7 +281,7 @@ export class Main {
 
 		var holder=this;
 
-		return new Promise(function(resolve,reject){
+		return new Promise(function(rs,rj){
 
 			L('Parsing '+pumlFile);
 			holder.parser.parse(pumlFile).then(function(d){
@@ -295,21 +294,21 @@ export class Main {
 				holder.importer.importParsedData(holder.parsedData).then(function(d1){
 
 					L(`d1: ${d1}`);
-					resolve(d1);
+					rs(d1);
 
 				}).catch(function(e){
 
 					L('\nError Main#1','er');
 					L(e);
-					reject(e);
+					rj(e);
 
 				});
 
 			}).catch(function(e){
 
 				L('\nError Main#2','er');
-				L(e);
-				reject(e);
+				L(e,'er',true);
+				rj(e);
 
 			});
 

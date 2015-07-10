@@ -10,7 +10,7 @@ var
 	fs       =require('fs-extra'),
 	validator=require('is-my-json-valid'),
 	clc 		 =require('cli-color'),
-	oriento  =require('orientjs'),
+	orientjs  =require('orientjs'),
 
 	cnfFile  ='./d/cnf.json',
 
@@ -206,7 +206,7 @@ describe('UTO Suit',function(){
 
 				//absentClasses=newClasses.slice();
 
-				srv=oriento({
+				srv=orientjs({
 					host     :'localhost',
 					port     :2424,
 					username :app.cnf.orient.server.username,
@@ -248,9 +248,10 @@ describe('UTO Suit',function(){
 				}
 			});
 
-			var nClassesBefore=existentClasses.length,
-			    nClassesToAdd=absentClasses.length;
 			it('Absent classes should be added',function(done){
+
+				var nClassesBefore=existentClasses.length,
+						nClassesToAdd=absentClasses.length-app.cnf.modules.importer.systemClasses.length;//absentClasses.length;
 
 				app.importPuml(app.cnf.test.path.src.pumlFile).then(function(d){
 

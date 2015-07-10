@@ -46,6 +46,7 @@
     "gulp-babel": "^5.1.0",
     "gulp-changed": "^1.2.1",
     "gulp-mocha": "^2.0.1",
+    "gulp-plumber": "^1.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-util": "^3.0.6",

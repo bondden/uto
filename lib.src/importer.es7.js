@@ -15,6 +15,7 @@ var
 	L	= UtilLib.Util.log,
 	clc=require('cli-color'),
 	___=console.log,
+	__p=process.stdout.write,
 	t=false,
 	E=function(n=0,msg=false,e=false,rj=false,thr=false){
 
@@ -41,11 +42,65 @@ var
 	}
 ;
 
+//todo: transaction style
 export class Importer {
 
 	constructor(db,cnf){
 		this.db=db;
 		this.cnf=cnf;
+	}
+
+	generalizationSort(arr,parent='superClass',name='name'){
+
+		function branch(o,a){
+			for(let i=0,l=a.length;i<l;i++){
+				if(a[i][parent]===o[name]){
+					a[i].level=o.level+1;
+					branch(a[i],a);
+				}
+			}
+		}
+
+		let a=JSON.parse(JSON.stringify(arr));
+		return new Promise(function(rs,rj){
+
+			for(let i=0,l=a.length;i<l;i++){
+
+				//level 0
+				a[i].level=a[i][parent]?1:0;
+
+				if(a[i].level){
+					a[i].hasParentInTheArr=a.find(function(el,i,arrPtr){
+						return el[name]===a[i][parent];
+					});
+					if(!a[i].hasParentInTheArr){
+						a[i].level=0;
+					}
+				}
+
+				//level>0
+				if(a[i].level){
+
+				}
+
+				branch(a[i],a);
+
+			}
+
+			let tops=a.sort(function(x,y){
+				return x.level-y.level;
+			}).map(function(o){
+				return {
+					[name]:o[name],
+					[parent]:o[parent],
+					"l":o.level
+				};
+			});
+
+
+			rs(tops);
+		});
+
 	}
 
 	composeClass(classData){
@@ -85,84 +140,110 @@ export class Importer {
 
 	}
 
-	composeQuery(data){
-
-		let q='';
-		if(data.classes.length===0){
-			return q;
-		}
-
+	cleanDb(classes){
 		var holder=this;
 
-		let classes=[];
-		data.classes.forEach(function(c){
-			classes.push(holder.composeClass(c));
+		return new Promise(function(rs,rj){
+
+			let q='';
+			let ce=[];
+
+			holder.db.class.list().then(function(existentClasses){
+
+				existentClasses=existentClasses.map(function(v){
+					return {
+						"name":v.name,
+						"superClass":v.superClass
+					};
+				});
+
+				existentClasses.forEach(function(c){
+					let isSys=holder.cnf.modules.importer.systemClasses.find(function(el,i,a){
+						return el===c.name;
+					});
+					if(isSys)return;
+					ce.push(c);
+				});
+
+				//___(clc.magenta('\nbefore sort'));
+				//___(ce);
+				//___('\n');
+
+				holder.generalizationSort(ce).catch(function(e){
+					E(11,'sorting',e,rj);
+				}).then(function(a){
+
+					//___(clc.magenta('\nafter sort'));
+					//___(a);
+					//___('\n');
+
+					for(let i=a.length-1;i>=0;i--){
+						let nm=a[i].name;
+						q+=`truncate class ${nm} UNSAFE\n`;
+						q+=`drop class ${nm}\n`;
+					}
+
+					//L(clc.yellow('q:\n'+q)+'\n');
+
+					rs(q);
+
+				});
+
+			}).catch(function(e){
+				E(10,'Listing classes',e,rj);
+			});
+
 		});
-
-		//sort classes to set superClass to the top
-		for(let i=0,l=classes.length;i<l;i++){
-			if(!classes[i].parent)continue;
-			for(let j=0;j<l;j++){
-				if(classes[j].name===classes[i].parent && j>i){
-					let t=JSON.parse(JSON.stringify(classes[j]));
-					classes[j]=JSON.parse(JSON.stringify(classes[i]));
-					classes[i]=t;
-					break;
-				}
-			}
-		}
-		//
-
-		for(let i=classes.length-1;i>=0;i--){
-			let nm=classes[i].name;
-			q+=`truncate class ${nm} UNSAFE\n`;
-			q+=`drop class ${nm}\n`;
-		}
-
-		classes.forEach(function(c,i){
-			q+=c.queryString;
-		});
-
-		return q;
 
 	}
 
-	runQuerySync(q){
+	composeQuery(data){
+
 		var holder=this;
 
-		return new Promise(function(rs,rj) {
+		return new Promise(function(rs,rj){
 
-			let cycle=async function(qs){
-				var r = null;
-				try{
-					for(let i=0,l=qs.length;i<l;i++){
+			let q='';
+			//it not nessessary to have classes to import, if we want just to clean DB
+			//if(data.classes.length===0){
+			//	L('No classes to import');
+			//	rs(q);
+			//	return q;
+			//}
 
-						t=setInterval(function(){
-							process.stdout.write(clc.blueBright('.'));
-						},25);
+			let classes=[];
+			data.classes.forEach(function(c){
+				classes.push(holder.composeClass(c));
+			});
 
-						//___(clc.yellow(qs[i]));
-						r = await holder.db.exec(qs[i]);
-						//___(clc.magentaBright(JSON.stringify(r)));
-						clearInterval(t);
-
+			//sort classes to set superClass to the top
+			for(let i=0,l=classes.length;i<l;i++){
+				if(!classes[i].parent)continue;
+				for(let j=0;j<l;j++){
+					if(classes[j].name===classes[i].parent && j>i){
+						let t=JSON.parse(JSON.stringify(classes[j]));
+						classes[j]=JSON.parse(JSON.stringify(classes[i]));
+						classes[i]=t;
+						break;
 					}
-				}catch(e){
-					E(6,'Query error',e);
 				}
-				return r;
-			};
+			}
+			//
 
-			let qs = q.trim().split('\n');
+			holder.cleanDb(classes).then(function(dropQuery){
 
-			cycle(qs).catch(function(e){
+				q+=dropQuery;
 
-				E(4,'Query error',e,rj);
+				classes.forEach(function(c,i){
+					q+=c.queryString;
+				});
 
-			}).then(function(r){
+				//Schema changes are not transactional
+				//q=`begin\n${q}\ncommit`;
+				rs(q);
 
-				rs(`${qs.length} records have been inserted`);
-
+			}).catch(function(e){
+				E(11,'Composing query',e,rj);
 			});
 
 		});
@@ -173,14 +254,13 @@ export class Importer {
 		var holder=this;
 		return new Promise(function(rs,rj){
 
+			//rs('STOPPED');
+			//return('STOPPED');
+
 			holder.db.exec(q,{"class": "s"}).then(function(r){
-
 				rs(r);
-
 			}).catch(function(e){
-
 				E(3,'Query execution',e,rj);
-
 			});
 
 		});
@@ -189,7 +269,7 @@ export class Importer {
 	/**
 	 *
 	 * @param data  : parsedData format
-	 * @param connConfig : (cnf.json).orient format
+	 * connConfig : (cnf.json).orient format
 	 * @returns {Promise}
 	 */
 	importParsedData(data){
@@ -200,19 +280,8 @@ export class Importer {
 
 			//simple input data check
 			if(!data||!data.classes){
-				E(1,
-					'the data for import is incorrect',
-					new Error('Error Importer#1: the data for import is incorrect'),
-					rj
-				);
-			}
-
-			//compose query
-			try{
-				var q=holder.composeQuery(data);
-			}catch(e){
-				E(7,'Query composition',e,rj);
-				return e;
+				let msg='the data for import is incorrect';
+				E(1,msg,new Error(msg),rj);
 			}
 
 			////choose a method
@@ -225,28 +294,34 @@ export class Importer {
 			//
 			//switch(holder.cnf.modules.importer.method){
 			//	case 'rewrite':
-			//		//todo: drop all non-system classes
 			//		runMethod=holder.runQuery;
 			//		break;
 			//	default:
 			//}
 
-			//limit execution time
-			let promises=[
-				new Promise(function(rs,rj){
-					setTimeout(function(){
-						rj(new Error('Error Importer#5: Timeout '+holder.cnf.timeout+' ms exceeded'));
-					},holder.cnf.timeout);
-				}),
-				holder.runQuery(q)
-			];
+			//compose query and run
+			holder.composeQuery(data).catch(function(eq){
+				E(7,'Query composition',eq,rj);
+			}).then(function(q){
 
-			//get result
-			Promise.race(promises).then(function(r){
-				if(t)clearInterval(t);
-				rs(r);
-			}).catch(function(e){
-				E(2,'Database communication',e,rj);
+				//limit execution time
+				let promises=[
+					new Promise(function(rs,rj){
+						setTimeout(function(){
+							rj(new Error('Error Importer#5: Timeout '+holder.cnf.timeout+' ms exceeded'));
+						},holder.cnf.timeout);
+					}),
+					holder.runQuery(q)
+				];
+
+				//get result
+				Promise.race(promises).catch(function(e){
+					E(2,'Database communication',e,rj);
+				}).then(function(r){
+					if(t)clearInterval(t);
+					rs(r);
+				});
+
 			});
 
 		});
