@@ -10,7 +10,7 @@ var
 	fs       =require('fs-extra'),
 	validator=require('is-my-json-valid'),
 	clc 		 =require('cli-color'),
-	oriento  =require('oriento'),
+	oriento  =require('orientjs'),
 
 	cnfFile  ='./d/cnf.json',
 
@@ -237,7 +237,7 @@ describe('UTO Suit',function(){
 
 			it('It should throw an Error on non-existent file',function(done){
 				try{
-					app.importPuml('non_existent_file').then(function(d){
+					app.importPuml('NON_EXISTENT_FILE').then(function(d){
 						expect(false).to.be.true;
 						done();
 					}).catch(function(e){

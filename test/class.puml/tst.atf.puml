@@ -2,6 +2,7 @@
 
 package Core{
 	class Basic extends V{
+		+package:string
 		+dateCreated:datetime
 		+dateChanged:datetime
 	}
@@ -26,7 +27,7 @@ package Storage{
 		}
 		class Person extends Body{
 			+name:String
-			+familyName:String
+			+familyName:string
 			+dateBirth
 			+dateDeath
 		}

@@ -13,7 +13,32 @@ import * as UtilLib from '../lib/util'
 var
 	fs=require('fs'),
 	L	= UtilLib.Util.log,
-	clc=require('cli-color')
+	clc=require('cli-color'),
+	___=console.log,
+	t=false,
+	E=function(n=0,msg=false,e=false,rj=false,thr=false){
+
+		if(!msg){
+			msg=`: ${msg}\n`;
+		}else{
+			msg='\n';
+		}
+		L(`Error Importer#${n}${msg}`);
+		L(e,'er');
+
+		if(t)clearInterval(t);
+
+		if(e){
+			L(e,'er');
+			if(rj){
+				rj(e);
+			}
+			if(thr){
+				throw e;
+			}
+		}
+
+	}
 ;
 
 export class Importer {
@@ -26,7 +51,7 @@ export class Importer {
 	composeClass(classData){
 
 		if(!classData.hasOwnProperty('name')||!classData.name){
-			throw new Error('Error Importer#4: Incorrect class '+classData);
+			throw new Error('Error Importer#6: Incorrect class '+classData);
 		}
 
 		let cd={
@@ -50,10 +75,10 @@ export class Importer {
 			c.abstract=' ABSTRACT';
 		}
 
-		cd.queryString=`create class ${c.name}${c.extends}${c.abstract};\n`;
+		cd.queryString=`create class ${c.name}${c.extends}${c.abstract}\n`;
 
 		classData.properties.forEach(function(p){
-			cd.queryString+=`create property ${c.name}.${p.name} ${p.type};\n`;
+			cd.queryString+=`create property ${c.name}.${p.name} ${p.type}\n`;
 		});
 
 		return cd;
@@ -92,17 +117,49 @@ export class Importer {
 			q+=c.queryString;
 		});
 
-		//q=`create class Tmp extends V;`;
-		//q=`begin;${q}commit retry 5;`;
-
-		q='begin;create class Tmp1 extends V;create class Tmp2 extends V;commit retry 10;';
-		q='begin\ncreate class Tmp1 extends V\ncreate class Tmp2 extends V\ncommit retry 10';
-
 		return q;
 
 	}
 
-	async runSubQuery(){
+	runQuerySync(q){
+		var holder=this;
+
+		return new Promise(function(rs,rj) {
+
+			let cycle=async function(qs){
+				var r = null;
+				try{
+					for(let i=0,l=qs.length;i<l;i++){
+
+						t=setInterval(function(){
+							process.stdout.write(clc.blueBright('.'));
+						},25);
+
+						//___(clc.yellow(qs[i]));
+						r = await holder.db.exec(qs[i]);
+						//___(clc.magentaBright(JSON.stringify(r)));
+						clearInterval(t);
+
+					}
+				}catch(e){
+					E(6,'Query error',e);
+				}
+				return r;
+			};
+
+			let qs = q.trim().split('\n');
+
+			cycle(qs).catch(function(e){
+
+				E(4,'Query error',e,rj);
+
+			}).then(function(r){
+
+				rs(`${qs.length} records have been inserted`);
+
+			});
+
+		});
 
 	}
 
@@ -110,17 +167,13 @@ export class Importer {
 		var holder=this;
 		return new Promise(function(rs,rj){
 
-
-
 			holder.db.exec(q).then(function(r){
 
 				rs(r);
 
 			}).catch(function(e){
 
-				L('Error Importer#3','er');
-				L(e);
-				rj(e);
+				E(3,'Query execution',e);
 
 			});
 
@@ -140,7 +193,11 @@ export class Importer {
 		return new Promise(function(rs,rj){
 
 			if(!data||!data.classes){
-				rj(new Error('Error Importer#1: the data for import is incorrect'));
+				E(1,
+					'the data for import is incorrect',
+					new Error('Error Importer#1: the data for import is incorrect'),
+					rj
+				);
 			}
 
 			try{
@@ -148,16 +205,24 @@ export class Importer {
 				var q=holder.composeQuery(data);
 
 			}catch(e){
-				rj(e);
+				E(7,'Query composition',e,rj);
 				return e;
 			}
 
-			holder.runQuery(q).then(function(r){
+			let promises=[
+				new Promise(function(rs,rj){
+					setTimeout(function(){
+						rj(new Error('Error Importer#5: Timeout '+holder.cnf.timeout+' ms exceeded'));
+					},holder.cnf.timeout);
+				}),
+				holder.runQuerySync(q)
+			];
+
+			Promise.race(promises).then(function(r){
+				if(t)clearInterval(t);
 				rs(r);
 			}).catch(function(e){
-				L('Error Importer#2','er');
-				L(e);
-				rj(new Error('Error Importer#2: database communication'));
+				E(2,'Database communication',e,rj);
 			});
 
 		});

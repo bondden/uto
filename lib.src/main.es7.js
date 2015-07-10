@@ -284,6 +284,7 @@ export class Main {
 
 		return new Promise(function(resolve,reject){
 
+			L('Parsing '+pumlFile);
 			holder.parser.parse(pumlFile).then(function(d){
 
 				holder.parsedData=d;
