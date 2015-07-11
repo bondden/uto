@@ -351,7 +351,7 @@ export class Compiler{
 
 	saveStr(str,targetFile){
 
-		return new Promise(function(resolve,reject){
+		return new Promise(function(rs,rj){
 
 			try{
 
@@ -359,16 +359,16 @@ export class Compiler{
 
 					if(e){
 						console.log(e);
-						reject(e);
+						rj(e);
 					}
 
-					resolve(true);
+					rs(true);
 
 				});
 
 			}catch(e){
 				console.log(e);
-				reject(e);
+				rj(e);
 			}
 
 		});
@@ -411,12 +411,12 @@ export class Compiler{
 
 		};
 
-		return new Promise(function(resolve,reject){
+		return new Promise(function(rs,rj){
 
 			if(proc()){
-				resolve(true);
+				rs(true);
 			}else{
-				reject(false);
+				rj(false);
 			}
 
 		});
